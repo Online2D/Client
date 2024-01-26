@@ -1,5 +1,6 @@
 
 #include <Engine/Kernel.hpp>
+#include "Endpoint/LobbyPackets.hpp"
 
 // -=(Undocumented)=-
 class GameClient : public EnableSmartPointer<GameClient>, public Core::Subsystem, public Network::Protocol
@@ -28,7 +29,7 @@ public:
     // -=(Undocumented)=-
     void OnTick() override
     {
-
+        mEndpoint->Flush();
     }
 
 private:
@@ -36,31 +37,41 @@ private:
     // -=(Undocumented)=-
     void OnAttach(ConstSPtr<Network::Session> Session) override
     {
-        LOG_INFO("We connected...");
+        LOG_INFO("GameClient::OnAttach");
     }
 
     // -=(Undocumented)=-
     void OnDetach(ConstSPtr<Network::Session> Session) override
     {
-        LOG_INFO("We disconnected...");
+        LOG_INFO("GameClient::OnDetach");
     }
 
     // -=(Undocumented)=-
     void OnError(ConstSPtr<Network::Session> Session, UInt Error, CStr Description) override
     {
-        LOG_INFO("Error from the underlying network service '{}'", Description);
+        LOG_INFO("GameClient::OnError {}:{}", Error, Description);
     }
 
     // -=(Undocumented)=-
     void OnRead(ConstSPtr<Network::Session> Session,  CPtr<UInt08> Bytes) override
     {
-        LOG_INFO("We recv some data...");
+        LOG_INFO("GameClient::OnRead");
+
+        switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
+        {
+            case Endpoint::LobbyReady::k_ID:
+            {
+                Session->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
+                Session->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
+            }
+            break;
+        }
     }
 
     // -=(Undocumented)=-
     void OnWrite(ConstSPtr<Network::Session> Session, CPtr<UInt08> Bytes) override
     {
-        LOG_INFO("We wrote some data...");
+        LOG_INFO("GameClient::OnWrite");
     }
 
 private:
