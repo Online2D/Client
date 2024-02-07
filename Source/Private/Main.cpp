@@ -35,25 +35,25 @@ public:
 private:
 
     // -=(Undocumented)=-
-    void OnAttach(ConstSPtr<Network::Session> Session) override
+    void OnAttach(ConstSPtr<Network::Client> Client) override
     {
         LOG_INFO("GameClient::OnAttach");
     }
 
     // -=(Undocumented)=-
-    void OnDetach(ConstSPtr<Network::Session> Session) override
+    void OnDetach(ConstSPtr<Network::Client> Client) override
     {
         LOG_INFO("GameClient::OnDetach");
     }
 
     // -=(Undocumented)=-
-    void OnError(ConstSPtr<Network::Session> Session, UInt Error, CStr Description) override
+    void OnError(ConstSPtr<Network::Client> Client, UInt Error, CStr Description) override
     {
         LOG_INFO("GameClient::OnError {}:{}", Error, Description);
     }
 
     // -=(Undocumented)=-
-    void OnRead(ConstSPtr<Network::Session> Session,  CPtr<UInt08> Bytes) override
+    void OnRead(ConstSPtr<Network::Client> Client,  CPtr<UInt08> Bytes) override
     {
         LOG_INFO("GameClient::OnRead");
 
@@ -61,15 +61,16 @@ private:
         {
             case Endpoint::LobbyReady::k_ID:
             {
-                Session->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
-                Session->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
+                Client->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
+                Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
+                //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
             }
             break;
         }
     }
 
     // -=(Undocumented)=-
-    void OnWrite(ConstSPtr<Network::Session> Session, CPtr<UInt08> Bytes) override
+    void OnWrite(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override
     {
         LOG_INFO("GameClient::OnWrite");
     }
