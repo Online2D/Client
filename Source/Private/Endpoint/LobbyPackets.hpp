@@ -80,4 +80,27 @@ namespace Endpoint
             Archive.SerializeString8(Email);
         }
     };
+
+    // -=(Undocumented)=-
+    struct LobbyAccountDelete
+        : public Network::Packet<LobbyAccountDelete, 3>
+    {
+        SStr Username;
+
+        // -=(Undocumented)=-
+        LobbyAccountDelete() = default;
+
+        // -=(Undocumented)=-
+        LobbyAccountDelete(CStr Username)
+            : Username{ Username }
+        {
+        }
+
+        // -=(Undocumented)=-
+        template<typename Stream>
+        void OnSerialize(Stream Archive)
+        {
+            Archive.SerializeString8(Username);
+        }
+    };
 }
