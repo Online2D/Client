@@ -21,12 +21,6 @@
 namespace Endpoint
 {
     // -=(Undocumented)=-
-    struct LobbyReady
-        : public Network::Packet<LobbyReady, 0>
-    {
-    };
-
-    // -=(Undocumented)=-
     struct LobbyAccountLogin
         : public Network::Packet<LobbyAccountLogin, 1>
     {

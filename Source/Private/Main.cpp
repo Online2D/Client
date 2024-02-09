@@ -24,6 +24,8 @@ public:
     {
         mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", "7666");
         mEndpoint->Attach(shared_from_this());
+
+        mEndpoint->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
     }
 
     // -=(Undocumented)=-
@@ -57,7 +59,7 @@ private:
     {
         LOG_INFO("GameClient::OnRead");
 
-        switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
+        /*switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
         {
             case Endpoint::LobbyReady::k_ID:
             {
@@ -66,7 +68,7 @@ private:
                 //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
             }
             break;
-        }
+        }*/
     }
 
     // -=(Undocumented)=-
