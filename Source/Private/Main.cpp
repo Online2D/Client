@@ -40,6 +40,10 @@ private:
     void OnAttach(ConstSPtr<Network::Client> Client) override
     {
         LOG_INFO("GameClient::OnAttach");
+
+        Client->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
+        Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
+        //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
     }
 
     // -=(Undocumented)=-
@@ -59,16 +63,9 @@ private:
     {
         LOG_INFO("GameClient::OnRead");
 
-        /*switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
+        switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
         {
-            case Endpoint::LobbyReady::k_ID:
-            {
-                Client->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
-                Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
-                //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
-            }
-            break;
-        }*/
+        }
     }
 
     // -=(Undocumented)=-
