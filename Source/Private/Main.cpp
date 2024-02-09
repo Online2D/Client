@@ -25,7 +25,6 @@ public:
         mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", "7666");
         mEndpoint->Attach(shared_from_this());
 
-        mEndpoint->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
     }
 
     // -=(Undocumented)=-
