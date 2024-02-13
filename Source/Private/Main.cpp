@@ -24,6 +24,8 @@ public:
     {
         mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", "7666");
         mEndpoint->Attach(shared_from_this());
+
+
     }
 
     // -=(Undocumented)=-
@@ -81,13 +83,13 @@ private:
 int main()
 {
     Engine::Properties Properties;
-    Properties.SetWindowTitle("Argentum Online v1.0");
+    Properties.SetWindowTitle("Online MMO v0.1");
     Properties.SetWindowWidth(1024);
     Properties.SetWindowHeight(768);
     Properties.SetWindowMode(false, true);
 
     Engine::Kernel Kernel;
-    Kernel.Initialize(Properties);
+    Kernel.Initialize(decltype(Kernel)::Mode::Client, Properties);
     Kernel.AddSubsystem<GameClient>();
     Kernel.GetSubsystem<GameClient>()->OnInitialize();
 
