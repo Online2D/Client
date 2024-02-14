@@ -24,7 +24,6 @@ public:
     {
         mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", "7666");
         mEndpoint->Attach(shared_from_this());
-
     }
 
     // -=(Undocumented)=-
@@ -41,7 +40,7 @@ private:
         LOG_INFO("GameClient::OnAttach");
 
         Client->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
-        Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
+        Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "thisisa32charactersrlylongtextje", "woot@gmail.com"));
         //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
     }
 
@@ -58,13 +57,23 @@ private:
     }
 
     // -=(Undocumented)=-
-    void OnRead(ConstSPtr<Network::Client> Client,  CPtr<UInt08> Bytes) override
+    void OnRead(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override
     {
+#define HANDLE_PACKET(Name) \
+        case Endpoint::Name::k_ID: { Endpoint::Name Packet; Packet.Decode(Serializer); Handle_ ## Name (Client, Packet); break; }
+
         LOG_INFO("GameClient::OnRead");
 
-        switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
+        Reader Serializer(Bytes);
+
+        do
         {
+            switch (Serializer.ReadInt<UInt>())
+            {
+                HANDLE_PACKET(LobbyAccountLogged)
+            }
         }
+        while (Serializer.GetAvailable() > 0);
     }
 
     // -=(Undocumented)=-
@@ -73,6 +82,11 @@ private:
         LOG_INFO("GameClient::OnWrite");
     }
 
+    void Handle_LobbyAccountLogged(ConstSPtr<Network::Client> Client, Ref<const Endpoint::LobbyAccountLogged> Message)
+    {
+        LOG_INFO("Account logged OK");
+        //TODO swap to gateway protocol?
+    }
 private:
 
     SPtr<Network::Client> mEndpoint;

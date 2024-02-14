@@ -97,4 +97,19 @@ namespace Endpoint
             Archive.SerializeString8(Username);
         }
     };
+
+    // -=(Undocumented)=-
+    struct LobbyAccountLogged
+        : public Network::Packet<LobbyAccountLogged, 4>
+    {
+        // -=(Undocumented)=-
+        LobbyAccountLogged() = default;
+
+        // -=(Undocumented)=-
+        template<typename Stream>
+        void OnSerialize(Stream Archive)
+        {
+        }
+    };
+
 }
