@@ -39,9 +39,8 @@ namespace Game
 
         // -=(Undocumented)=-
         Drawable()
-            : mState         { State::Stopped },
-              mAnimationTime { 0 }
         {
+            SetState(State::Stopped);
         }
 
         // -=(Undocumented)=-
@@ -57,20 +56,25 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        void SetTint(Color Tint)
+        void SetColor(Color Tint)
         {
-            mTint = Tint;
+            mColor = Tint;
         }
 
         // -=(Undocumented)=-
-        Color GetTint() const
+        Color GetColor() const
         {
-            return mTint;
+            return mColor;
         }
 
         // -=(Undocumented)=-
         void SetState(State State)
         {
+            if (State == State::Stopped)
+            {
+                mAnimationTime = 0;
+            }
+
             mState = State;
         }
 
@@ -93,37 +97,7 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Ptr<const Animation::Frame> GetFrame(Real64 Time)
-        {
-            if (mAnimation == nullptr || mState == State::Stopped)
-            {
-                return nullptr;
-            }
-
-            if (mAnimationTime == 0)
-            {
-                mAnimationTime = Time;
-            }
-
-            UInt Difference = static_cast<UInt>((Time - mAnimationTime) * 1000.0f);
-            UInt Offset     = 0;
-
-            if (Difference >= mAnimation->Duration)
-            {
-                if (mState == State::Repeat)
-                {
-                    Offset         = (Offset % mAnimation->Duration) % mAnimation->Frames.size() - 1;
-                    mAnimationTime = Time;
-                }
-                else
-                {
-                    Offset         = mAnimation->Frames.size() - 1;
-                    mState         = State::Stopped;
-                    mAnimationTime = 0;
-                }
-            }
-            return & mAnimation->Frames[Offset];
-        }
+        Ptr<const Animation::Frame> GetFrame(Real64 Time);
 
     private:
 
@@ -131,7 +105,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         Vector3f             mPosition;
-        Color                mTint;
+        Color                mColor;
         State                mState;
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

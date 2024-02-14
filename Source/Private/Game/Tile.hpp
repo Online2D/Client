@@ -24,6 +24,6 @@ namespace Game
     struct Tile
     {
         // -=(Undocumented)=-
-        Stack<Drawable, 4> Layer;
+        Stack<Drawable, 1> Layer;
     };
 }
