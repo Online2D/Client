@@ -1,9 +1,9 @@
 
 #include <Engine/Kernel.hpp>
-#include "Endpoint/LobbyPackets.hpp"
+#include "Endpoint/LobbyProtocol.hpp"
 
 // -=(Undocumented)=-
-class GameClient : public EnableSmartPointer<GameClient>, public Core::Subsystem, public Network::Protocol
+class GameClient : public EnableSmartPointer<GameClient>, public Core::Subsystem
 {
 public:
 
@@ -22,56 +22,13 @@ public:
     // -=(Undocumented)=-
     void OnInitialize()
     {
-        mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", "7666");
-        mEndpoint->Attach(shared_from_this());
-
-
+        mEndpoint = GetSubsystem<Network::Service>()->Connect("127.0.0.1", 7666);
+        mEndpoint->SetProtocol(NewPtr<Endpoint::LobbyProtocol>());
     }
 
     // -=(Undocumented)=-
     void OnTick() override
     {
-        mEndpoint->Flush();
-    }
-
-private:
-
-    // -=(Undocumented)=-
-    void OnAttach(ConstSPtr<Network::Client> Client) override
-    {
-        LOG_INFO("GameClient::OnAttach");
-
-        Client->Write(Endpoint::LobbyAccountLogin("Wolftein", "WhyUCare?"));
-        Client->Write(Endpoint::LobbyAccountRegister("Wolftein", "WhyUCare?", "woot@gmail.com"));
-        //Client->Write(Endpoint::LobbyAccountDelete("Wolftein"));
-    }
-
-    // -=(Undocumented)=-
-    void OnDetach(ConstSPtr<Network::Client> Client) override
-    {
-        LOG_INFO("GameClient::OnDetach");
-    }
-
-    // -=(Undocumented)=-
-    void OnError(ConstSPtr<Network::Client> Client, UInt Error, CStr Description) override
-    {
-        LOG_INFO("GameClient::OnError {}:{}", Error, Description);
-    }
-
-    // -=(Undocumented)=-
-    void OnRead(ConstSPtr<Network::Client> Client,  CPtr<UInt08> Bytes) override
-    {
-        LOG_INFO("GameClient::OnRead");
-
-        switch (Reader Serializer(Bytes); Serializer.ReadInt<UInt>())
-        {
-        }
-    }
-
-    // -=(Undocumented)=-
-    void OnWrite(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override
-    {
-        LOG_INFO("GameClient::OnWrite");
     }
 
 private:
