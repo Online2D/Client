@@ -37,7 +37,8 @@ namespace Game
 
         // -=(Undocumented)=-
         Drawable()
-            : mColor { 1.0f, 1.0f, 1.0f, 1.0f }
+            : mColor     { 1.0f, 1.0f, 1.0f, 1.0f },
+              mAnimation { nullptr }
         {
             SetState(State::Stopped);
         }

@@ -12,7 +12,8 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Drawable.hpp"
+#include "Tile.hpp"
+#include <Content/Resource.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -21,26 +22,22 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    class Tile final
+    class Region final : public Content::AbstractResource<Hash("Region")>
     {
     public:
 
         // -=(Undocumented)=-
-        static constexpr UInt kSizeInPixels = 32;
-
-        // -=(Undocumented)=-
-        enum class Layer
-        {
-            Floor,
-            Decal,
-        };
+        static constexpr UInt kTilesPerRowColumn = 32;
 
     public:
 
         // -=(Undocumented)=-
-        Ref<Drawable> GetLayer(Layer Type)
+        Region(Ref<const Content::Uri> Key);
+
+        // -=(Undocumented)=-
+        Ref<Tile> GetTile(UInt X, UInt Y)
         {
-            return mLayers[CastEnum(Type)];
+            return mTiles[Y * kTilesPerRowColumn + X];
         }
 
     private:
@@ -48,6 +45,6 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Array<Drawable, 2> mLayers;
+        Array<Tile, kTilesPerRowColumn * kTilesPerRowColumn> mTiles;
     };
 }
