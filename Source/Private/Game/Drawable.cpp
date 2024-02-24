@@ -23,33 +23,37 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Ptr<const Animation::Frame> Drawable::GetFrame(Real64 Time)
+    Ptr<const Animation::Frame> Drawable::GetFrame(Real64 Tick)
     {
         if (mAnimation == nullptr || mState == State::Stopped)
         {
             return nullptr;
         }
 
-        if (mAnimationTime == 0)
-        {
-            mAnimationTime = Time;
-        }
+        const UInt Count = mAnimation->Frames.size();
+        UInt Offset = 0;
 
-        const UInt Difference = static_cast<UInt>((Time - mAnimationTime) * 1000.0f);
-        UInt Offset     = 0;
-
-        if (Difference >= mAnimation->Duration)
+        if (Count > 1)
         {
-            if (mState == State::Repeat)
+            if (mTick == 0)
             {
-                Offset         = (Offset % mAnimation->Duration) % mAnimation->Frames.size() - 1;
-                mAnimationTime = Time;
+                mTick = Tick;
             }
-            else
+
+            Offset = static_cast<UInt>((Tick - mTick) / mAnimation->Duration);
+
+            if (Offset >= Count)
             {
-                Offset         = mAnimation->Frames.size() - 1;
-                mState         = State::Stopped;
-                mAnimationTime = 0;
+                if (mState == State::Repeat)
+                {
+                    Offset %= Count;
+                    mTick   = (Tick - Offset * mAnimation->Duration);
+                }
+                else
+                {
+                    Offset = Count - 1;
+                    mState = State::Stopped;
+                }
             }
         }
         return & mAnimation->Frames[Offset];

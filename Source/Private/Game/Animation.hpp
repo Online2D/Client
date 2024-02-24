@@ -12,7 +12,7 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include <Core/Math/Rect.hpp>
+#include <Core/Core.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -24,10 +24,10 @@ namespace Game
     struct Animation final
     {
         // -=(Undocumented)=-
-        struct Frame
+        struct Frame final
         {
             // -=(Undocumented)=-
-            UInt        ID = 0;
+            UInt32      ID;
 
             // -=(Undocumented)=-
             Rectf       Coordinates;
@@ -40,6 +40,6 @@ namespace Game
         Stack<Frame, 16> Frames;
 
         // -=(Undocumented)=-
-        UInt             Duration = 1000;
+        Real32           Duration;
     };
 }

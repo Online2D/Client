@@ -13,8 +13,6 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animation.hpp"
-#include <Core/Math/Color.hpp>
-#include <Core/Math/Vector3.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -23,7 +21,7 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    class Drawable
+    class Drawable final
     {
     public:
 
@@ -39,6 +37,7 @@ namespace Game
 
         // -=(Undocumented)=-
         Drawable()
+            : mColor { 1.0f, 1.0f, 1.0f, 1.0f }
         {
             SetState(State::Stopped);
         }
@@ -70,12 +69,12 @@ namespace Game
         // -=(Undocumented)=-
         void SetState(State State)
         {
+            mState = State;
+
             if (State == State::Stopped)
             {
-                mAnimationTime = 0;
+                mTick = 0;
             }
-
-            mState = State;
         }
 
         // -=(Undocumented)=-
@@ -97,7 +96,7 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Ptr<const Animation::Frame> GetFrame(Real64 Time);
+        Ptr<const Animation::Frame> GetFrame(Real64 Tick);
 
     private:
 
@@ -107,11 +106,7 @@ namespace Game
         Vector3f             mPosition;
         Color                mColor;
         State                mState;
-
-        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         Ptr<const Animation> mAnimation;
-        Real64               mAnimationTime;
+        Real64               mTick;
     };
 }

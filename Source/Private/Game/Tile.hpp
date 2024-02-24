@@ -21,9 +21,9 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    struct Tile
+    struct Tile final
     {
         // -=(Undocumented)=-
-        Stack<Drawable, 1> Layer;
+        Array<Drawable, 2> Layer;
     };
 }
