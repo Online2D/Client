@@ -12,7 +12,7 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include <Core/Core.hpp>
+#include "Drawable.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -21,21 +21,34 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    struct Animation final
+    class Animator final
     {
-        // -=(Undocumented)=-
-        UInt32           File;
+    public:
 
         // -=(Undocumented)=-
-        UInt16           Width;
+        static constexpr CStr kAnimationFilename = "Resources://Data/Animations.bin";
+
+    public:
 
         // -=(Undocumented)=-
-        UInt16           Height;
+        Bool Initialize(Ref<Subsystem::Context> Context);
 
         // -=(Undocumented)=-
-        Stack<Rectf, 16> Frames;
+        Ptr<const Animation> GetAnimation(UInt ID) const
+        {
+            return (ID < mAnimations.size() ? & mAnimations[ID] : nullptr);
+        }
+
+    private:
 
         // -=(Undocumented)=-
-        Real32           Duration;
+        Bool LoadAnimations(Ref<Subsystem::Context> Context);
+
+    private:
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        Vector<Animation> mAnimations;
     };
 }

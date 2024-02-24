@@ -96,7 +96,7 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Ptr<const Animation::Frame> GetFrame(Real64 Tick);
+        Ref<const Rectf> GetFrame(Real64 Tick);
 
     private:
 

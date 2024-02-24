@@ -23,11 +23,11 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Ptr<const Animation::Frame> Drawable::GetFrame(Real64 Tick)
+    Ref<const Rectf> Drawable::GetFrame(Real64 Tick)
     {
         if (mAnimation == nullptr || mState == State::Stopped)
         {
-            return nullptr;
+            return Rectf(0, 0, 0, 0);
         }
 
         const UInt Count = mAnimation->Frames.size();
@@ -56,6 +56,6 @@ namespace Game
                 }
             }
         }
-        return & mAnimation->Frames[Offset];
+        return mAnimation->Frames[Offset];
     }
 }
