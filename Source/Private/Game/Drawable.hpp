@@ -50,7 +50,7 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Vector3f GetPosition() const
+        Ref<const Vector3f> GetPosition() const
         {
             return mPosition;
         }
@@ -62,7 +62,7 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Color GetColor() const
+        Ref<const Color> GetColor() const
         {
             return mColor;
         }
