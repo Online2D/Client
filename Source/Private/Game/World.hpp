@@ -13,6 +13,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
+#include "Controller.hpp"
 #include "Region.hpp"
 #include "RegionLoader.hpp"
 
@@ -39,15 +40,9 @@ namespace Game
         void Update(Real64 Time);
 
         // -=(Undocumented)=-
-        void SetCamera(Ref<Graphic::Camera> Camera)
+        Ref<Controller> GetController()
         {
-            mCamera = Camera;
-        }
-
-        // -=(Undocumented)=-
-        Ref<Graphic::Camera> GetCamera()
-        {
-            return mCamera;
+            return mController;
         }
 
     private:
@@ -80,6 +75,6 @@ namespace Game
         Animator                mAnimator;
         SPtr<Graphic::Pipeline> mPipeline;
         SPtr<Graphic::Font>     mFont;
-        Graphic::Camera         mCamera;
+        Controller              mController;
     };
 }

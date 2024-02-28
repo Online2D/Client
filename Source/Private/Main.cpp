@@ -2,17 +2,18 @@
 #include <Engine/Kernel.hpp>
 #include "Game/World.hpp"
 #include "Endpoint/LobbyProtocol.hpp"
-#include <windows.h>
+#include "Game/Controller.hpp"
 
-static constexpr UInt WINDOW_WIDTH  = 1024;
-static constexpr UInt WINDOW_HEIGHT = 768;
+static constexpr UInt WINDOW_WIDTH  = 1280;
+static constexpr UInt WINDOW_HEIGHT = 1024;
 
 // -=(Undocumented)=-
 class GameClient : public EnableSmartPointer<GameClient>, public Core::Subsystem, public Input::Listener
 {
 public:
 
-    // -=(Undocumented)=-
+
+        // -=(Undocumented)=-
     GameClient(Ref<Context> Context)
         : Subsystem { Context }
     {
@@ -42,16 +43,12 @@ public:
 
         Graphic::Camera Camera;
 
-        Camera.SetOrthographic(WINDOW_WIDTH, WINDOW_HEIGHT, 1000, -1000);
-        Camera.SetPosition(0, 0);
-        Camera.Compute();
-
-        mWorld->SetCamera(Camera);
+        mWorld->GetController().SetViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
+        //mWorld->GetController().SetPosition(Vector2i(0, 0));
 
         // Init Input Service
         mInputService = GetSubsystem<Input::Service>();
         mInputService->AddListener(shared_from_this());
-
     }
 
     // -=(Undocumented)=-
@@ -73,26 +70,6 @@ public:
 
         constexpr static Real32 SPEED = 5.0f;
 
-        if (Input->IsKeyHeld(Input::Key::W))
-        {
-            mWorld->GetCamera().Translate(0.0f, -SPEED);
-            mWorld->GetCamera().Compute();
-        }
-        if (Input->IsKeyHeld(Input::Key::S))
-        {
-            mWorld->GetCamera().Translate(0.0f, +SPEED);
-            mWorld->GetCamera().Compute();
-        }
-        if (Input->IsKeyHeld(Input::Key::A))
-        {
-            mWorld->GetCamera().Translate(-SPEED, 0.0f);
-            mWorld->GetCamera().Compute();
-        }
-        if (Input->IsKeyHeld(Input::Key::D))
-        {
-            mWorld->GetCamera().Translate(+SPEED, 0.0f);
-            mWorld->GetCamera().Compute();
-        }
 
     }
 
@@ -114,21 +91,27 @@ public:
 
     Bool OnMouseScroll(SInt X, SInt Y)
     {
-        Zoom += Y * 0.01;
-        mWorld->GetCamera().SetScale(Zoom, Zoom);
-        mWorld->GetCamera().Compute();
+        mWorld->GetController().Zoom(Y * 0.2f);
         return true;
     }
-
 
     Bool OnKeyDown(Input::Key Key) override
     {
         switch (Key)
         {
-        case Input::Key::F1:
-            mWorld->GetCamera().Rotate(45 , Vector3f(0, 0, 1));
-            mWorld->GetCamera().Compute();
+        case Input::Key::W:
+            mWorld->GetController().Move(0.0f, -1);
             break;
+        case Input::Key::S:
+            mWorld->GetController().Move(0.0f, +1);
+            break;
+        case Input::Key::A:
+            mWorld->GetController().Move(-1, 0.0f);
+            break;
+        case Input::Key::D:
+            mWorld->GetController().Move(+1, 0.0f);
+            break;
+
         default:
             return false;
         }
@@ -142,7 +125,6 @@ private:
     SPtr<Platform::Service> mPlatformService;
     SPtr<Graphic::Service> mGraphicService;
     SPtr<Input::Service>   mInputService;
-    Real32 Zoom = 1.0f;
 
 };
 

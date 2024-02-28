@@ -52,29 +52,33 @@ namespace Game
 
     void World::OnRender(Real64 Time)
     {
+        const Real32 Difference = Time - mTime;
         mTime = Time;
 
-        mRenderer->Begin(mCamera.GetWorld(), Time);
+        // Game
+        mController.Tick(Difference);
 
-        const UInt Width  = 2.0f / mCamera.GetProjection().GetComponent(0);
-        const UInt Height = -(2.0f / mCamera.GetProjection().GetComponent(5));
+        mRenderer->Begin(mController.GetCamera().GetWorld(), Difference);
 
-        const Vector2f Position(mCamera.GetPosition().GetX(), mCamera.GetPosition().GetY());
-
-        const SInt WorldTileX    = Position.GetX() / Tile::kSizeInPixels;
-        const SInt WorldTileY    = Position.GetY() / Tile::kSizeInPixels;
-        const SInt MaxWorldTileX = std::ceilf((Position.GetX() + Width) / Tile::kSizeInPixels);
-        const SInt MaxWorldTileY = std::ceilf((Position.GetY() + Height) / Tile::kSizeInPixels);
-
+        Ref<const Recti> Viewport = mController.GetViewport();
         Draw(
-            std::max(WorldTileX, 0),
-            std::max(WorldTileY, 0),
-            std::max(MaxWorldTileX, 0),
-            std::max(MaxWorldTileY, 0));
+            std::max(Viewport.GetLeft(), 0),
+            std::max(Viewport.GetTop(), 0),
+            std::max(Viewport.GetRight(), 0),
+            std::max(Viewport.GetBottom(), 0));
 
-        const SStr16 Coordinates = Format(L"X: {}/{} Y: {}/{}", WorldTileX, MaxWorldTileX, WorldTileY, MaxWorldTileY);
-        mRenderer->DrawFont(mFont, Coordinates, Position, 0, 24, -1, Graphic::Renderer::Alignment::LeftTop);
+        mRenderer->End();
 
+        // UI
+
+        Graphic::Camera UICamera;
+        UICamera.SetOrthographic(1024, 768, -1, 1);
+        UICamera.Compute();
+
+        mRenderer->Begin(UICamera.GetWorld(), Time);
+            const SStr16 Coordinates
+                = Format(L"X: {}/{} Y: {}/{}", Viewport.GetLeft(), Viewport.GetRight(), Viewport.GetTop(), Viewport.GetBottom());
+            mRenderer->DrawFont(mFont, Coordinates, Vector2f(0, 0), 0, 32, -1, Graphic::Renderer::Alignment::LeftTop);
         mRenderer->End();
     }
 
@@ -138,6 +142,10 @@ namespace Game
                     Content::Uri(Format("Resources://Texture/{}.png", Animation->File)));
 
                 Material->SetTexture(0, Texture);
+                Material->SetSampler(0,
+                    Graphic::Sampler(Graphic::TextureEdge::Repeat,
+                                     Graphic::TextureEdge::Repeat,
+                                     Graphic::TextureFilter::Nearest));
 
                 mContentService->Register(Material, false);
             }
