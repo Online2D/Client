@@ -41,10 +41,7 @@ public:
         mPlatformService = GetSubsystem<Platform::Service>();
         mGraphicService = GetSubsystem<Graphic::Service>();
 
-        Graphic::Camera Camera;
-
         mWorld->GetController().SetViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
-        //mWorld->GetController().SetPosition(Vector2i(0, 0));
 
         // Init Input Service
         mInputService = GetSubsystem<Input::Service>();
@@ -62,14 +59,34 @@ public:
         };
         mGraphicService->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1, 0);
 
-        mWorld->Update(mPlatformService->GetTime());
+        static Real64 LastTick = mPlatformService->GetTime();
+        Real64 Tick = mPlatformService->GetTime();
+
+        mWorld->Update(Tick);
 
         mGraphicService->Commit(Graphic::k_Default, false);
 
-        auto Input = GetSubsystem<Input::Service>();
+        if (Tick - LastTick >= 0.025f)
+        {
+            LastTick = Tick;
 
-        constexpr static Real32 SPEED = 5.0f;
-
+            if (mInputService->IsKeyHeld(Input::Key::W))
+            {
+                mWorld->GetController().Move(0.0f, -1);
+            }
+            if (mInputService->IsKeyHeld(Input::Key::S))
+            {
+                mWorld->GetController().Move(0.0f, +1);
+            }
+            if (mInputService->IsKeyHeld(Input::Key::A))
+            {
+                mWorld->GetController().Move(-1, 0.0f);
+            }
+            if (mInputService->IsKeyHeld(Input::Key::D))
+            {
+                mWorld->GetController().Move(+1, 0.0f);
+            }
+        }
 
     }
 
@@ -89,32 +106,19 @@ public:
         return true;
     }
 
+    Bool OnMouseUp(Input::Button Button)
+    {
+        return true;
+    }
+
     Bool OnMouseScroll(SInt X, SInt Y)
     {
-        mWorld->GetController().Zoom(Y * 0.2f);
+        mWorld->GetController().Zoom(Y * 0.25f);
         return true;
     }
 
     Bool OnKeyDown(Input::Key Key) override
     {
-        switch (Key)
-        {
-        case Input::Key::W:
-            mWorld->GetController().Move(0.0f, -1);
-            break;
-        case Input::Key::S:
-            mWorld->GetController().Move(0.0f, +1);
-            break;
-        case Input::Key::A:
-            mWorld->GetController().Move(-1, 0.0f);
-            break;
-        case Input::Key::D:
-            mWorld->GetController().Move(+1, 0.0f);
-            break;
-
-        default:
-            return false;
-        }
         return true;
     }
 

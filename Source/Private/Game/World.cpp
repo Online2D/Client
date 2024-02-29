@@ -77,7 +77,7 @@ namespace Game
 
         mRenderer->Begin(UICamera.GetWorld(), Time);
             const SStr16 Coordinates
-                = Format(L"X: {}/{} Y: {}/{}", Viewport.GetLeft(), Viewport.GetRight(), Viewport.GetTop(), Viewport.GetBottom());
+                = Format(L"X: {}/{} Y: {}/{} Zoom: {}", Viewport.GetLeft(), Viewport.GetRight(), Viewport.GetTop(), Viewport.GetBottom(), mController.GetZoom());
             mRenderer->DrawFont(mFont, Coordinates, Vector2f(0, 0), 0, 32, -1, Graphic::Renderer::Alignment::LeftTop);
         mRenderer->End();
     }
@@ -162,8 +162,8 @@ namespace Game
                 Destination,
                 Source,
                 Position.GetZ(),
-                0.0f,
-                Graphic::Renderer::Order::Opaque,
+                Drawable.GetRotation(),
+                Graphic::Renderer::Order::Opaque, // TODO
                 Drawable.GetColor(),
                 mPipeline,
                 Material);
@@ -178,4 +178,5 @@ namespace Game
         SStr Filename = Format("Resources://World/{}-{}.region", ChunkX, ChunkY);
         return mContentService->Load<Region>(Content::Uri(Filename));
     }
+
 }

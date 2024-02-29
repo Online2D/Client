@@ -36,12 +36,7 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        Drawable()
-            : mColor     { 1.0f, 1.0f, 1.0f, 1.0f },
-              mAnimation { nullptr }
-        {
-            SetState(State::Stopped);
-        }
+        Drawable();
 
         // -=(Undocumented)=-
         void SetPosition(Vector3f Position)
@@ -53,6 +48,18 @@ namespace Game
         Ref<const Vector3f> GetPosition() const
         {
             return mPosition;
+        }
+
+        // -=(Undocumented)=-
+        void SetRotation(Real32 Angles)
+        {
+            mRotation = Angles;
+        }
+
+        // -=(Undocumented)=-
+        Real32 GetRotation() const
+        {
+            return mRotation;
         }
 
         // -=(Undocumented)=-
@@ -105,6 +112,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         Vector3f             mPosition;
+        Real32               mRotation;
         Color                mColor;
         State                mState;
         Ptr<const Animation> mAnimation;

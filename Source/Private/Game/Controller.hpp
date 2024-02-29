@@ -27,6 +27,14 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
+        static constexpr Real32 kMinimumZoom = 0.25f;
+
+        // -=(Undocumented)=-
+        static constexpr Real32 kMaximumZoom = 32.0f;
+
+    public:
+
+        // -=(Undocumented)=-
         Controller();
 
         // -=(Undocumented)=-
@@ -64,7 +72,7 @@ namespace Game
         // -=(Undocumented)=-
         void SetZoom(Real32 Zoom)
         {
-            mZoom = Zoom;
+            mZoom = Within(Zoom, kMinimumZoom, kMaximumZoom);
             SetViewport(mSize.GetX(), mSize.GetY());
         }
 
@@ -83,8 +91,7 @@ namespace Game
         // -=(Undocumented)=-
         void Zoom(Real32 Magnitude) // TODO: Smooth Zoom
         {
-            mZoom += Magnitude;
-            SetViewport(mSize.GetX(), mSize.GetY());
+            SetZoom(mZoom + Magnitude);
         }
 
         // -=(Undocumented)=-
