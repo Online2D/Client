@@ -36,7 +36,7 @@ public:
 
         // Initialize our custom locator
         ConstSPtr<Content::Service> Resources = GetSubsystem<Content::Service>();
-        Resources->AddLocator("Resources", NewPtr<Content::SystemLocator>("C:\\Users\\Agustin\\Workspace\\Online-MMO-Resources\\"));
+        Resources->AddLocator("Resources", NewPtr<Content::SystemLocator>("Resources\\"));
 
         // Init input Service
         mInput = GetSubsystem<Input::Service>();
