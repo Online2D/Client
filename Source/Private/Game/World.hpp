@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -13,14 +13,13 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
-#include "Controller.hpp"
+#include "Director.hpp"
+#include "Entities.hpp"
 #include "Region.hpp"
-#include "RegionLoader.hpp"
 
 #include <Content/Service.hpp>
-#include <Graphic/Renderer.hpp>
 #include <Graphic/Service.hpp>
-#include <Platform/Window.hpp>
+#include <Graphic/Renderer.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -29,52 +28,101 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    class World
+    class World final
     {
     public:
+
+        // -=(Undocumented)=-
+        World();
 
         // -=(Undocumented)=-
         void Initialize(Ref<Subsystem::Context> Context);
 
         // -=(Undocumented)=-
-        void Update(Real64 Time);
+        void Tick(Real64 Time);
 
         // -=(Undocumented)=-
-        Ref<Controller> GetController()
+        Ref<Animator> GetAnimator()
         {
-            return mController;
+            return mAnimator;
+        }
+
+        // -=(Undocumented)=-
+        Ref<Director> GetDirector()
+        {
+            return mDirector;
+        }
+
+        // -=(Undocumented)=-
+        Ref<Entities> GetEntities()
+        {
+            return mEntities;
         }
 
     private:
 
         // -=(Undocumented)=-
-        void OnRender(Real64 Tick);
+        struct Chunk
+        {
+            // -=(Undocumented)=-
+            Recti        Dimension;
+
+            // -=(Undocumented)=-
+            SPtr<Region> Region;
+        };
+
+    private:
 
         // -=(Undocumented)=-
-        void Draw(UInt MinX, UInt MinY, UInt MaxX, UInt MaxY);
+        void OnUpdate(Real64 Delta);
 
         // -=(Undocumented)=-
-        void Draw(Ref<Drawable> Drawable);
+        void OnRender(Real64 Delta);
 
         // -=(Undocumented)=-
-        SPtr<Region> GetRegion(UInt ChunkX, UInt ChunkY);
+        void Compute(Ref<const Recti> Viewport);
+
+        // -=(Undocumented)=-
+        void DrawInterface(Real64 Delta);
+
+        // -=(Undocumented)=-
+        void DrawTiles(Ref<Region> Region, UInt32 MinX, UInt32 MinY, UInt32 MaxX, UInt32 MaxY);
+
+        // -=(Undocumented)=-
+        void DrawEntity(Ref<Entity> Entity);
+
+        // -=(Undocumented)=-
+        void DrawSprite(Ref<Drawable> Drawable, Drawable::Order Order)
+        {
+            DrawSprite(Drawable, Drawable.GetPosition(), Order);
+        }
+
+        // -=(Undocumented)=-
+        void DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Center, Drawable::Order Order);
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        SPtr<Content::Service>  mContentService;
-        SPtr<Graphic::Service>  mGraphicService;
+        SPtr<Content::Service>  mResources;
+        SPtr<Graphic::Service>  mGraphics;
         SPtr<Graphic::Renderer> mRenderer;
+        SPtr<Graphic::Pipeline> mPipeline;
+        SPtr<Graphic::Font>     mFont;
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         Real64                  mTime;
         Animator                mAnimator;
-        SPtr<Graphic::Pipeline> mPipeline;
-        SPtr<Graphic::Font>     mFont;
-        Controller              mController;
+        Director                mDirector;
+        Entities                mEntities;
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        Vector<Chunk>           mChunks;
+        Recti                   mChunksArea;
     };
 }

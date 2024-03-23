@@ -1,5 +1,5 @@
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-## Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+## Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 ##
 ## This work is licensed under the terms of the MIT license.
 ##
@@ -24,8 +24,6 @@ FILE(GLOB_RECURSE PROJECT_SOURCE "Private/*.cpp")
 ## Includes
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-ADD_DEFINITIONS(-DFIX_CBO)
-
 LIST(APPEND PROJECT_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -39,6 +37,19 @@ FetchContent_Declare(External_Aurora
 FetchContent_MakeAvailable(External_Aurora)
 
 LIST(APPEND PROJECT_DEPENDENCIES "Aurora_Engine")
+
+## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+## Dependency (Loose Quadtree)
+## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+FetchContent_Declare(External_LooseQuadtree
+        GIT_REPOSITORY https://github.com/gerazo/loose_quadtree )
+FetchContent_MakeAvailable(External_LooseQuadtree)
+
+ADD_LIBRARY(LooseQuadtree INTERFACE)
+TARGET_INCLUDE_DIRECTORIES(LooseQuadtree INTERFACE ${external_loosequadtree_SOURCE_DIR}/src/include)
+
+LIST(APPEND PROJECT_DEPENDENCIES "LooseQuadtree")
 
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ## Library

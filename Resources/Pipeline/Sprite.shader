@@ -5,6 +5,7 @@
 cbuffer cbScene    : register(b0)
 {
 	float4x4 u_Camera;
+	float	 u_Time;
 }
 
 struct VsParameters

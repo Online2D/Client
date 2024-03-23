@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -34,13 +34,15 @@ namespace Game
 
     Ref<const Rectf> Drawable::GetFrame(Real64 Tick)
     {
-        if (mAnimation == nullptr || mState == State::Stopped)
+        static constexpr Rectf kEmptyRect(0, 0, 0, 0);
+
+        if (mAnimation == nullptr || mAnimation->Frames.empty() || mState == State::Stopped)
         {
-            return Rectf(0, 0, 0, 0);
+            return kEmptyRect;
         }
 
-        const UInt Count = mAnimation->Frames.size();
-        UInt Offset = 0;
+        const UInt32 Count = mAnimation->Frames.size();
+        UInt32 Offset = 0;
 
         if (Count > 1)
         {
@@ -49,7 +51,7 @@ namespace Game
                 mTick = Tick;
             }
 
-            Offset = static_cast<UInt>((Tick - mTick) / mAnimation->Duration);
+            Offset = static_cast<UInt32>((Tick - mTick) / mAnimation->Duration);
 
             if (Offset >= Count)
             {

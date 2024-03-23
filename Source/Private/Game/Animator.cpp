@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -38,17 +38,20 @@ namespace Game
         {
             Reader Input(File.GetSpan<UInt08>());
 
-            mAnimations.resize(Input.ReadUInt32());
+            mAnimations.resize(Input.ReadInt<UInt32>());
 
             while (Input.GetAvailable() > 0)
             {
-                Ref<Animation> Animation = mAnimations[Input.ReadUInt32()];
-                Animation.File     = Input.ReadUInt32();
-                Animation.Width    = Input.ReadUInt16();
-                Animation.Height   = Input.ReadUInt16();
+                const UInt32 ID = Input.ReadInt<UInt32>();
+
+                Ref<Animation> Animation = mAnimations[ID];
+                Animation.ID       = ID;
+                Animation.File     = Input.ReadInt<UInt32>();
+                Animation.Width    = Input.ReadInt<UInt16>();
+                Animation.Height   = Input.ReadInt<UInt16>();
                 Animation.Duration = Input.ReadReal32();
 
-                for (UInt Element = 0, Maximum = Input.ReadInt<UInt>(); Element < Maximum; ++Element)
+                for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
                 {
                     Ref<Rectf> Frame = Animation.Frames.emplace_back();
                     Frame.SetLeft(Input.ReadReal32());

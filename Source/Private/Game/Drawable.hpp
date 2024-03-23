@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -28,9 +28,27 @@ namespace Game
         // -=(Undocumented)=-
         enum class State
         {
+            // -=(Undocumented)=-
             Started,
+
+            // -=(Undocumented)=-
             Stopped,
+
+            // -=(Undocumented)=-
             Repeat,
+        };
+
+        // -=(Undocumented)=-
+        enum class Order
+        {
+            // -=(Undocumented)=-
+            Background,
+
+            // -=(Undocumented)=-
+            Middle,
+
+            // -=(Undocumented)=-
+            Foreground,
         };
 
     public:
@@ -95,6 +113,12 @@ namespace Game
         void SetAnimation(Ptr<const Animation> Animation)
         {
             mAnimation = Animation;
+        }
+
+        // -=(Undocumented)=-
+        Bool HasAnimation() const
+        {
+            return mAnimation != nullptr;
         }
 
         // -=(Undocumented)=-

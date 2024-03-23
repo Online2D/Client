@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -23,8 +23,9 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    RegionLoader::RegionLoader(Ref<Animator> Animator)
-        : mAnimator { Animator }
+    RegionLoader::RegionLoader(Ref<Animator> Animator, Ref<Entities> Entities)
+        : mAnimator { Animator },
+          mEntities { Entities }
     {
     }
 
@@ -35,20 +36,24 @@ namespace Game
     {
         Reader Input(Data.GetSpan<UInt08>());
 
-        const UInt ChunkX = Input.ReadUInt16();
-        const UInt ChunkY = Input.ReadUInt16();
+        const UInt16   ChunkX = Input.ReadInt<UInt16>();
+        const UInt16   ChunkY = Input.ReadInt<UInt16>();
+        const Vector3f Position(
+            ChunkX * Region::kTilesPerRow    * Tile::kDimension,
+            ChunkY * Region::kTilesPerColumn * Tile::kDimension,
+            0.0f);
 
-        for (UInt Y = 0; Y < Region::kTilesPerRowColumn; ++Y)
+        for (UInt32 Y = 0; Y < Region::kTilesPerColumn; ++Y)
         {
-            const UInt WorldY = (ChunkY * Region::kTilesPerRowColumn + Y);
+            const UInt32 WorldY = Position.GetY() + (Y * Tile::kDimension);
 
-            for (UInt X = 0; X < Region::kTilesPerRowColumn; ++X)
+            for (UInt32 X = 0; X < Region::kTilesPerRow; ++X)
             {
-                const UInt WorldX = (ChunkX * Region::kTilesPerRowColumn + X);
+                const UInt32 WorldX = Position.GetX() + (X * Tile::kDimension);
 
                 Ref<Tile> Tile = Asset->GetTile(X, Y);
 
-                const UInt Flags = Input.ReadUInt8();
+                const UInt08 Flags = Input.ReadUInt8();
 
                 ReadLayer(Input, Tile, Tile::Layer::Floor, WorldX, WorldY);
 
@@ -56,18 +61,18 @@ namespace Game
                 {
                     ReadLayer(Input, Tile, Tile::Layer::Decal, WorldX, WorldY);
                 }
-
-                if (Flags & 0x04)
-                {
-                    Input.Skip(4); // TODO: Remove legacy format
-                }
-
-                if (Flags & 0x08)
-                {
-                    Input.Skip(4); // TODO: Remove legacy format
-                }
             }
         }
+
+        for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
+        {
+            ConstSPtr<Entity> Entity = mEntities.Load(Input);
+            if (Entity)
+            {
+                Entity->SetPosition(Entity->GetPosition() + Position);
+            }
+        }
+
         return true;
     }
 
@@ -76,15 +81,12 @@ namespace Game
 
     void RegionLoader::ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type, Real32 X, Real32 Y)
     {
-        const UInt ID = Input.ReadUInt32();
+        const UInt32 ID = Input.ReadInt<UInt32>();
         if (ID)
         {
             Ref<Drawable> Drawable = Tile.GetLayer(Type);
             Drawable.SetAnimation(mAnimator.GetAnimation(ID));
-            Drawable.SetPosition(
-                Vector3f(X * Tile::kSizeInPixels,
-                         Y * Tile::kSizeInPixels,
-                         0 /* TODO */));
+            Drawable.SetPosition(Vector3f(X, Y, CastEnum(Type)));
             Drawable.SetState(Drawable::State::Repeat);
         }
     }

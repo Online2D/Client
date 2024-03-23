@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -26,14 +26,14 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        static constexpr UInt kSizeInPixels = 32;
-
-        // -=(Undocumented)=-
         enum class Layer
         {
             Floor,
             Decal,
         };
+
+        // -=(Undocumented)=-
+        static constexpr UInt32 kDimension = 32;
 
     public:
 

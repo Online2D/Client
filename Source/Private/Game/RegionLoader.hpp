@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2024 by Online-MMO-Engine Team. All rights reserved.
+// Copyright (C) 2024 by Agustin L. Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the MIT license.
 //
@@ -13,6 +13,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
+#include "Entities.hpp"
 #include "Region.hpp"
 #include <Content/Loader.hpp>
 
@@ -28,7 +29,7 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        RegionLoader(Ref<Animator> Animator);
+        RegionLoader(Ref<Animator> Animator, Ref<Entities> Entities);
 
         // \see Loader::GetExtensions
         List<CStr> GetExtensions() const override
@@ -51,5 +52,6 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         Ref<Animator> mAnimator;
+        Ref<Entities> mEntities;
     };
 }
