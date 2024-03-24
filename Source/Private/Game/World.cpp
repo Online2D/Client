@@ -69,8 +69,8 @@ namespace Game
         const Bool Dirty = mDirector.Compute(Delta);
         if (Dirty)
         {
-            mChunksArea = Recti::Max(mDirector.GetViewport(), Recti(0, 0, 0, 0));
-            Compute(mChunksArea);
+            Ref<const Recti> Boundaries = Recti::Max(mDirector.GetBoundaries(), Recti(0, 0, 0, 0));
+            Compute(Boundaries);
         }
 
         // TODO: Tick entities
@@ -81,7 +81,7 @@ namespace Game
 
     void World::OnRender(Real64 Delta)
     {
-        Rectf Viewport(0, 0, mDirector.GetSize().GetX(), mDirector.GetSize().GetY());
+        Rectf Viewport(Vector2f(0.0f, 0.0f), mDirector.GetViewport());
 
         // Apply default technique
         mGraphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
@@ -92,8 +92,7 @@ namespace Game
                 // @TODO: Draw Foreground
 
                 // Draw Middle (Entities)
-                const Rectf Area(Viewport.GetLeft(), Viewport.GetTop(), Viewport.GetRight(), Viewport.GetBottom());
-                mEntities.Query(Area * Tile::kDimension, [this](Ref<Entity> Entity)
+                mEntities.Query(Viewport * Tile::kDimension, [this](Ref<Entity> Entity)
                 {
                     DrawEntity(Entity);
                 });
@@ -162,17 +161,17 @@ namespace Game
     void World::DrawInterface(Real64 Delta)
     {
         Graphic::Camera Camera;
-        Camera.SetOrthographic(mDirector.GetSize().GetX(), mDirector.GetSize().GetY(), 0.0f, 1.0f);
+        Camera.SetOrthographic(mDirector.GetViewport().GetX(), mDirector.GetViewport().GetY(), 0.0f, 1.0f);
         Camera.Compute();
 
         mRenderer->Begin(Camera.GetWorld(), Delta);
         {
-            Ref<const Recti> Viewport = mDirector.GetViewport();
+            Ref<const Recti> Boundaries = mDirector.GetBoundaries();
             const SStr16 Coordinates  = Format(L"X: {}/{} Y: {}/{} Zoom: {}",
-                Viewport.GetLeft(),
-                Viewport.GetRight(),
-                Viewport.GetTop(),
-                Viewport.GetBottom(), mDirector.GetZoom());
+                Boundaries.GetLeft(),
+                Boundaries.GetRight(),
+                Boundaries.GetTop(),
+                Boundaries.GetBottom(), mDirector.GetZoom());
             mRenderer->DrawFont(mFont, Coordinates, Vector2f(0, 0), 0.0f, 32, -1, Graphic::Renderer::Alignment::LeftTop);
         }
         mRenderer->End();

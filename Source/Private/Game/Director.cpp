@@ -36,9 +36,9 @@ namespace Game
             mCamera.SetPosition(mTranslation.Tick(Delta));
         }
 
-        if (mZoomer.HasStarted())
+        if (mMagnitude.HasStarted())
         {
-            mZoom = mZoomer.Tick(Delta);
+            mZoom = mMagnitude.Tick(Delta);
             SetViewport(mSize);
         }
 
@@ -51,10 +51,10 @@ namespace Game
             const Real32 HalfWidth  = (mSize.GetX() * 0.5f * mZoom) + Tile::kDimension;
             const Real32 HalfHeight = (mSize.GetY() * 0.5f * mZoom) + Tile::kDimension;
 
-            mViewport.Set(
+            mBoundaries.Set(
                 Position.GetX() - HalfWidth, Position.GetY() - HalfHeight,
                 Position.GetX() + HalfWidth, Position.GetY() + HalfHeight);
-            mViewport /= Tile::kDimension;
+            mBoundaries /= Tile::kDimension;
         }
         return Dirty;
     }

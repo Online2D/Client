@@ -27,13 +27,13 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
+        static constexpr Real32 kDelay       = 0.25f;
+
+        // -=(Undocumented)=-
         static constexpr Real32 kMinimumZoom = 0.25f;
 
         // -=(Undocumented)=-
         static constexpr Real32 kMaximumZoom = 16.0f;
-
-        // -=(Undocumented)=-
-        static constexpr Real32 kVelocity    = 0.25f;
 
     public:
 
@@ -54,9 +54,9 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Ref<const Recti> GetViewport() const
+        Ref<const Vector2i> GetViewport() const
         {
-            return mViewport;
+            return mSize;
         }
 
         // -=(Undocumented)=-
@@ -77,17 +77,11 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Vector2i GetSize() const
+        void SetZoom(Real32 Magnitude)
         {
-            return mSize;
-        }
+            mMagnitude = Interpolator<Real32>();
 
-        // -=(Undocumented)=-
-        void SetZoom(Real32 Zoom)
-        {
-            mZoomer = Interpolator<Real32>();
-
-            mZoom = Within(Zoom, kMinimumZoom, kMaximumZoom);
+            mZoom = Within(Magnitude, kMinimumZoom, kMaximumZoom);
             SetViewport(mSize);
         }
 
@@ -107,35 +101,42 @@ namespace Game
                 mTranslation = Interpolator<Vector3f>(
                     Position,
                     Position + Vector3f(Translation.GetX(), Translation.GetY(), 0.0f) * Tile::kDimension,
-                    kVelocity);
+                    kDelay);
             }
         }
 
         // -=(Undocumented)=-
         void Zoom(Real32 Magnitude)
         {
-            if (mZoomer.HasFinish())
+            if (mMagnitude.HasFinish())
             {
-                mZoomer = Interpolator<Real32>(mZoom, Within(mZoom + Magnitude, kMinimumZoom, kMaximumZoom), kVelocity);
+                mMagnitude = Interpolator<Real32>(
+                    mZoom, Within(mZoom + Magnitude, kMinimumZoom, kMaximumZoom), kDelay);
             }
+        }
+
+        // -=(Undocumented)=-
+        Ref<const Recti> GetBoundaries() const
+        {
+            return mBoundaries;
+        }
+
+        // -=(Undocumented)=-
+        Vector3f GetWorldCoordinates(Ref<const Vector3f> Position)
+        {
+            return mCamera.GetWorldCoordinates(Position, Rectf(Vector2f(0.0f, 0.0f), mSize));
+        }
+
+        // -=(Undocumented)=-
+        Vector3f GetSpaceCoordinates(Ref<const Vector3f> Position)
+        {
+            return mCamera.GetScreenCoordinates(Position, Rectf(Vector2f(0.0f, 0.0f), mSize));
         }
 
         // -=(Undocumented)=-
         Ref<const Matrix4f> GetMatrix() const
         {
             return mCamera.GetWorld();
-        }
-
-        // -=(Undocumented)=-
-        Vector3f GetWorldCoordinates(Ref<const Vector3f> Position)
-        {
-            return mCamera.GetWorldCoordinates(Position, Rectf(0, 0, mSize.GetX(), mSize.GetY()));
-        }
-
-        // -=(Undocumented)=-
-        Vector3f GetSpaceCoordinates(Ref<const Vector3f> Position)
-        {
-            return mCamera.GetScreenCoordinates(Position, Rectf(0, 0, mSize.GetX(), mSize.GetY()));
         }
 
     public:
@@ -174,13 +175,9 @@ namespace Game
 
         Graphic::Camera        mCamera;
         Vector2i               mSize;
-        Recti                  mViewport;
         Real32                 mZoom;
-
-        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+        Recti                  mBoundaries;
         Interpolator<Vector3f> mTranslation;
-        Interpolator<Real32>   mZoomer;
+        Interpolator<Real32>   mMagnitude;
     };
 }

@@ -55,37 +55,29 @@ public:
     // -=(Undocumented)=-
     void OnTick() override
     {
-        static Real64 LastTick = mPlatform->GetTime();
-        Real64 Tick = mPlatform->GetTime();
+        mWorld->Tick(mPlatform->GetTime());
 
-        mWorld->Tick(Tick);
+        constexpr static SInt32   kFast (10);
+        constexpr static Vector2i kUp   ( 0, -1);
+        constexpr static Vector2i kDown ( 0, +1);
+        constexpr static Vector2i kLeft (-1,  0);
+        constexpr static Vector2i kRight(+1,  0);
 
-        if (Tick - LastTick >= 0.025f)
+        Vector2i Movement;
+
+             if (mInput->IsKeyHeld(Input::Key::W)) Movement = kUp;
+        else if (mInput->IsKeyHeld(Input::Key::S)) Movement = kDown;
+             if (mInput->IsKeyHeld(Input::Key::A)) Movement += kLeft;
+        else if (mInput->IsKeyHeld(Input::Key::D)) Movement += kRight;
+
+             if (mInput->IsKeyHeld(Input::Key::Up))     Movement = kUp   * kFast;
+        else if (mInput->IsKeyHeld(Input::Key::Down))  Movement = kDown * kFast;
+             if (mInput->IsKeyHeld(Input::Key::Left))  Movement += kLeft  * kFast;
+        else if (mInput->IsKeyHeld(Input::Key::Right)) Movement += kRight * kFast;
+
+        if (! Movement.IsZero())
         {
-            LastTick = Tick;
-
-            constexpr static SInt32   kFast (10);
-            constexpr static Vector2i kUp   ( 0, -1);
-            constexpr static Vector2i kDown ( 0, +1);
-            constexpr static Vector2i kLeft (-1,  0);
-            constexpr static Vector2i kRight(+1,  0);
-
-            Vector2i Movement;
-
-                 if (mInput->IsKeyHeld(Input::Key::W)) Movement = kUp;
-            else if (mInput->IsKeyHeld(Input::Key::S)) Movement = kDown;
-                 if (mInput->IsKeyHeld(Input::Key::A)) Movement += kLeft;
-            else if (mInput->IsKeyHeld(Input::Key::D)) Movement += kRight;
-
-                if (mInput->IsKeyHeld(Input::Key::Up))     Movement = kUp   * kFast;
-            else if (mInput->IsKeyHeld(Input::Key::Down))  Movement = kDown * kFast;
-                 if (mInput->IsKeyHeld(Input::Key::Left))  Movement += kLeft  * kFast;
-            else if (mInput->IsKeyHeld(Input::Key::Right)) Movement += kRight * kFast;
-
-            if (!Movement.IsZero())
-            {
-                mWorld->GetDirector().Move(Movement);
-            }
+            mWorld->GetDirector().Move(Movement);
         }
     }
 
