@@ -25,4 +25,13 @@ namespace Game
         : AbstractResource(Key)
     {
     }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    Bool Region::OnCreate(Ref<Subsystem::Context> Context)
+    {
+        SetMemory(sizeof(Tile) * kTilesPerRegion);
+        return true;
+    }
 }

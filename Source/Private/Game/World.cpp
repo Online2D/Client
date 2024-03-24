@@ -86,6 +86,7 @@ namespace Game
         // Apply default technique
         mGraphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
         {
+            // Draw Game
             mRenderer->Begin(mDirector.GetMatrix(), Delta);
             {
                 // @TODO: Draw Foreground
@@ -96,6 +97,7 @@ namespace Game
                 {
                     DrawEntity(Entity);
                 });
+                mRenderer->Flush();
 
                 // Draw Background (Floor, Decal, ...)
                 for (Ref<const Chunk> Chunk : mChunks)
@@ -109,7 +111,7 @@ namespace Game
             }
             mRenderer->End();
 
-            // Draw interface (UI)
+            // Draw Interface (UI)
             DrawInterface(Delta);
         }
         mGraphics->Commit(Graphic::k_Default, false);
@@ -165,11 +167,12 @@ namespace Game
 
         mRenderer->Begin(Camera.GetWorld(), Delta);
         {
-            const SStr16 Coordinates = Format(L"X: {}/{} Y: {}/{} Zoom: {}",
-                mChunksArea.GetLeft(),
-                mChunksArea.GetRight(),
-                mChunksArea.GetTop(),
-                mChunksArea.GetBottom(), mDirector.GetZoom());
+            Ref<const Recti> Viewport = mDirector.GetViewport();
+            const SStr16 Coordinates  = Format(L"X: {}/{} Y: {}/{} Zoom: {}",
+                Viewport.GetLeft(),
+                Viewport.GetRight(),
+                Viewport.GetTop(),
+                Viewport.GetBottom(), mDirector.GetZoom());
             mRenderer->DrawFont(mFont, Coordinates, Vector2f(0, 0), 0.0f, 32, -1, Graphic::Renderer::Alignment::LeftTop);
         }
         mRenderer->End();

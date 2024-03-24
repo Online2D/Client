@@ -72,7 +72,6 @@ namespace Game
                 Entity->SetPosition(Entity->GetPosition() + Position);
             }
         }
-
         return true;
     }
 
