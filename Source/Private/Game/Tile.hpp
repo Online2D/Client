@@ -33,7 +33,7 @@ namespace Game
         };
 
         // -=(Undocumented)=-
-        static constexpr UInt32 kDimension = 32;
+        static constexpr SInt32 kDimension = 32;
 
     public:
 

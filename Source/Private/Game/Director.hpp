@@ -32,13 +32,16 @@ namespace Game
         // -=(Undocumented)=-
         static constexpr Real32 kMaximumZoom = 16.0f;
 
+        // -=(Undocumented)=-
+        static constexpr Real32 kVelocity    = 0.25f;
+
     public:
 
         // -=(Undocumented)=-
         Director();
 
         // -=(Undocumented)=-
-        Bool Compute(Real32 Delta);
+        Bool Compute(Real64 Delta);
 
         // -=(Undocumented)=-
         void SetViewport(Vector2i Size)
@@ -59,6 +62,8 @@ namespace Game
         // -=(Undocumented)=-
         void SetPosition(Vector2i Position)
         {
+            mTranslation = Interpolator<Vector3f>();
+
             const SInt32 XInPixels  = Position.GetX() * Tile::kDimension;
             const SInt32 YInPixels  = Position.GetY() * Tile::kDimension;
             mCamera.SetPosition(XInPixels, YInPixels);
@@ -80,6 +85,8 @@ namespace Game
         // -=(Undocumented)=-
         void SetZoom(Real32 Zoom)
         {
+            mZoomer = Interpolator<Real32>();
+
             mZoom = Within(Zoom, kMinimumZoom, kMaximumZoom);
             SetViewport(mSize);
         }
@@ -91,17 +98,26 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        void Move(Vector2i Position) // TODO: Smooth Movement
+        void Move(Vector2i Translation)
         {
-            const SInt32 XInPixels = Position.GetX() * Tile::kDimension;
-            const SInt32 YInPixels = Position.GetY() * Tile::kDimension;
-            mCamera.Translate(XInPixels, YInPixels);
+            if (mTranslation.HasFinish())
+            {
+                Ref<const Vector3f> Position = mCamera.GetPosition();
+
+                mTranslation = Interpolator<Vector3f>(
+                    Position,
+                    Position + Vector3f(Translation.GetX(), Translation.GetY(), 0.0f) * Tile::kDimension,
+                    kVelocity);
+            }
         }
 
         // -=(Undocumented)=-
-        void Zoom(Real32 Magnitude) // TODO: Smooth Zoom
+        void Zoom(Real32 Magnitude)
         {
-            SetZoom(mZoom + Magnitude);
+            if (mZoomer.HasFinish())
+            {
+                mZoomer = Interpolator<Real32>(mZoom, Within(mZoom + Magnitude, kMinimumZoom, kMaximumZoom), kVelocity);
+            }
         }
 
         // -=(Undocumented)=-
@@ -156,9 +172,15 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Graphic::Camera mCamera;
-        Vector2i        mSize;
-        Recti           mViewport;
-        Real32          mZoom;
+        Graphic::Camera        mCamera;
+        Vector2i               mSize;
+        Recti                  mViewport;
+        Real32                 mZoom;
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        Interpolator<Vector3f> mTranslation;
+        Interpolator<Real32>   mZoomer;
     };
 }

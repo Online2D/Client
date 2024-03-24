@@ -10,6 +10,7 @@
 
 #include <Engine/Kernel.hpp>
 #include <Content/Locator/SystemLocator.hpp>
+#include <windows.h>
 
 // -=(Undocumented)=-
 class GameClient : public EnableSmartPointer<GameClient>, public Core::Subsystem, public Input::Listener
@@ -66,18 +67,25 @@ public:
             constexpr static SInt32   kFast (10);
             constexpr static Vector2i kUp   ( 0, -1);
             constexpr static Vector2i kDown ( 0, +1);
-            constexpr static Vector2i KLeft (-1,  0);
+            constexpr static Vector2i kLeft (-1,  0);
             constexpr static Vector2i kRight(+1,  0);
 
-            if (mInput->IsKeyHeld(Input::Key::W)) mWorld->GetDirector().Move(kUp);
-            if (mInput->IsKeyHeld(Input::Key::S)) mWorld->GetDirector().Move(kDown);
-            if (mInput->IsKeyHeld(Input::Key::A)) mWorld->GetDirector().Move(KLeft);
-            if (mInput->IsKeyHeld(Input::Key::D)) mWorld->GetDirector().Move(kRight);
+            Vector2i Movement;
 
-            if (mInput->IsKeyHeld(Input::Key::Up))    mWorld->GetDirector().Move(kUp    * kFast);
-            if (mInput->IsKeyHeld(Input::Key::Down))  mWorld->GetDirector().Move(kDown  * kFast);
-            if (mInput->IsKeyHeld(Input::Key::Left))  mWorld->GetDirector().Move(KLeft  * kFast);
-            if (mInput->IsKeyHeld(Input::Key::Right)) mWorld->GetDirector().Move(kRight * kFast);
+                 if (mInput->IsKeyHeld(Input::Key::W)) Movement = kUp;
+            else if (mInput->IsKeyHeld(Input::Key::S)) Movement = kDown;
+                 if (mInput->IsKeyHeld(Input::Key::A)) Movement += kLeft;
+            else if (mInput->IsKeyHeld(Input::Key::D)) Movement += kRight;
+
+                if (mInput->IsKeyHeld(Input::Key::Up))     Movement = kUp   * kFast;
+            else if (mInput->IsKeyHeld(Input::Key::Down))  Movement = kDown * kFast;
+                 if (mInput->IsKeyHeld(Input::Key::Left))  Movement += kLeft  * kFast;
+            else if (mInput->IsKeyHeld(Input::Key::Right)) Movement += kRight * kFast;
+
+            if (!Movement.IsZero())
+            {
+                mWorld->GetDirector().Move(Movement);
+            }
         }
     }
 
@@ -100,6 +108,10 @@ private:
 
 int main()
 {
+#ifdef    EA_PLATFORM_WINDOWS
+    ::CoInitialize(nullptr);
+#endif // EA_PLATFORM_WINDOWS
+
     static constexpr UInt WINDOW_WIDTH  = 1280;
     static constexpr UInt WINDOW_HEIGHT = 1024;
 
