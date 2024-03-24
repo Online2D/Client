@@ -47,6 +47,7 @@ public:
         mWorld = NewPtr<Game::World>();
         mWorld->Initialize(GetContext());
         mWorld->GetDirector().SetViewport(Display->GetSize());
+        mWorld->GetDirector().SetPosition(Vector2i(345, 720));
 
         // Set the window visible
         Display->SetVisible(true);

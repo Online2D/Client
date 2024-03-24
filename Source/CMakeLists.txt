@@ -39,19 +39,6 @@ FetchContent_MakeAvailable(External_Aurora)
 LIST(APPEND PROJECT_DEPENDENCIES "Aurora_Engine")
 
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-## Dependency (Loose Quadtree)
-## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-FetchContent_Declare(External_LooseQuadtree
-        GIT_REPOSITORY https://github.com/gerazo/loose_quadtree )
-FetchContent_MakeAvailable(External_LooseQuadtree)
-
-ADD_LIBRARY(LooseQuadtree INTERFACE)
-TARGET_INCLUDE_DIRECTORIES(LooseQuadtree INTERFACE ${external_loosequadtree_SOURCE_DIR}/src/include)
-
-LIST(APPEND PROJECT_DEPENDENCIES "LooseQuadtree")
-
-## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ## Library
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
