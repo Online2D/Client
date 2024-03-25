@@ -13,8 +13,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
-#include "Entity.hpp"
 #include "Object.hpp"
+#include "Character.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -39,7 +39,7 @@ namespace Game
         void Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor);
 
         // -=(Undocumented)=-
-        SPtr<Entity> Create(UInt32 ID, Entity::Type Archetype, Ref<const Vector3f> Position);
+        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector3f> Position);
 
         // -=(Undocumented)=-
         void Remove(ConstSPtr<Entity> Actor);
@@ -61,6 +61,12 @@ namespace Game
 
         // -=(Undocumented)=-
         void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Entity);
+
+        // -=(Undocumented)=-
+        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Character);
+
+        // -=(Undocumented)=-
+        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Character);
 
     private:
 

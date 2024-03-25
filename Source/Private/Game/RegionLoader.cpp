@@ -34,6 +34,9 @@ namespace Game
     {
         Reader Input(Data.GetSpan<UInt08>());
 
+        constexpr UInt32 kMaskBlock = 0b00000001;
+        constexpr UInt32 kMaskDecal = 0b00000010;
+
         const UInt16   ChunkX = Input.ReadInt<UInt16>();
         const UInt16   ChunkY = Input.ReadInt<UInt16>();
         const Vector3f Position(
@@ -55,7 +58,12 @@ namespace Game
 
                 ReadLayer(Input, Tile, Tile::Layer::Floor, WorldX, WorldY);
 
-                if (Flags & 0x02)
+                if (Flags & kMaskBlock)
+                {
+                    Tile.SetProperty(Game::Tile::Property::Block, true);
+                }
+
+                if (Flags & kMaskDecal)
                 {
                     ReadLayer(Input, Tile, Tile::Layer::Decal, WorldX, WorldY);
                 }

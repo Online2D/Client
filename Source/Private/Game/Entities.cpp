@@ -40,10 +40,13 @@ namespace Game
         SPtr<Entity> Actor = Create(ID, static_cast<Entity::Type>(Type), Vector3f(X, Y, Z));
         if (Actor)
         {
-            switch (Actor->GetArchetype())
+            switch (Actor->GetType())
             {
             case Entity::Type::Object:
                 OnDecode(Reader, CastPtr<Object>(Actor));
+                break;
+            case Entity::Type::Character:
+                OnDecode(Reader, CastPtr<Character>(Actor));
                 break;
             }
         }
@@ -56,17 +59,20 @@ namespace Game
     void Entities::Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor)
     {
         Writer.WriteInt<UInt32>(Actor->GetID());
-        Writer.WriteInt<UInt32>(CastEnum(Actor->GetArchetype()));
+        Writer.WriteInt<UInt32>(CastEnum(Actor->GetType()));
 
         Ref<const Vector3f> Position = Actor->GetPosition();
         Writer.WriteReal32(Position.GetX());
         Writer.WriteReal32(Position.GetY());
         Writer.WriteReal32(Position.GetZ());
 
-        switch (Actor->GetArchetype())
+        switch (Actor->GetType())
         {
         case Entity::Type::Object:
             OnEncode(Writer, CastPtr<Object>(Actor));
+            break;
+        case Entity::Type::Character:
+            OnEncode(Writer, CastPtr<Character>(Actor));
             break;
         }
     }
@@ -82,6 +88,9 @@ namespace Game
         {
         case Entity::Type::Object:
             Entity = NewPtr<Object>(ID, Position);
+            break;
+        case Entity::Type::Character:
+            Entity = NewPtr<Character>(ID, Position);
             break;
         }
 
@@ -151,4 +160,21 @@ namespace Game
         Writer.WriteInt<UInt16>(Drawable.GetRotation());
         Writer.WriteInt<UInt32>(Drawable.GetColor().AsPacked());
     }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Entities::OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Character)
+    {
+        // @TODO
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Entities::OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Character)
+    {
+        // @TODO
+    }
+
 }

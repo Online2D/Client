@@ -196,11 +196,12 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+    // @TODO: Improve how Entity works and interact
     void World::DrawEntity(Ref<Entity> Entity)
     {
-        switch (Entity.GetArchetype())
+        switch (Entity.GetType())
         {
-            case Entity::Type::Object: // @TODO: Improve how Entity works and interact
+            case Entity::Type::Object:
             {
                 Ref<Object> Actor = static_cast<Ref<Object>>(Entity);
 
@@ -211,6 +212,8 @@ namespace Game
 
                 DrawSprite(Actor.GetDrawable(), Actor.GetPosition(), Drawable::Order::Middle);
             }
+            break;
+        case Entity::Type::Character:
             break;
         }
     }

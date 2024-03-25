@@ -29,13 +29,32 @@ namespace Game
         enum class Type
         {
             // -=(Undocumented)=-
-            Object
+            Object,
+
+            // -=(Undocumented)=-
+            Character,
+        };
+
+        // -=(Undocumented)=-
+        enum class Owner
+        {
+            // -=(Undocumented)=-
+            Local,
+
+            // -=(Undocumented)=-
+            Remote,
+
+            // -=(Undocumented)=-
+            Mutual,
         };
 
     public:
 
         // -=(Undocumented)=-
-        Entity(UInt32 ID, Type Archetype, Ref<const Vector3f> Position);
+        Entity(UInt32 ID, Type Type, Ref<const Vector3f> Position);
+
+        // -=(Undocumented)=-
+        virtual ~Entity() = default;
 
         // -=(Undocumented)=-
         UInt32 GetID() const
@@ -44,9 +63,9 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Type GetArchetype() const
+        Type GetType() const
         {
-            return mArchetype;
+            return mType;
         }
 
         // -=(Undocumented)=-
@@ -84,13 +103,26 @@ namespace Game
                 mPosition.GetY());
         }
 
+    public:
+
+        // -=(Undocumented)=-
+        static constexpr UInt32 CalculateID(UInt32 Identifier, Owner Owner)
+        {
+            constexpr UInt32 OwnerBits      = 2;
+            constexpr UInt32 OwnerMask      = GetMask<UInt32>(OwnerBits);
+            constexpr UInt32 IdentifierBits = 30;
+            constexpr UInt32 IdentifierMask = GetMask<UInt32>(IdentifierBits);
+
+            return (CastEnum(Owner) & OwnerMask) << (IdentifierBits) | (Identifier & IdentifierMask);
+        }
+
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         UInt32   mID;
-        Type     mArchetype;
+        Type     mType;
         Vector3f mPosition;
         Vector2f mSize;
     };

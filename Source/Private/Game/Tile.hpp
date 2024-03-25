@@ -33,9 +33,28 @@ namespace Game
         };
 
         // -=(Undocumented)=-
+        enum class Property
+        {
+            // -=(Undocumented)=-
+            Block  = 0b00000001,
+        };
+
+        // -=(Undocumented)=-
         static constexpr SInt32 kDimension = 32;
 
     public:
+
+        // -=(Undocumented)=-
+        void SetProperty(Property Mask, Bool Active)
+        {
+            mProperties = (Active ? mProperties | CastEnum(Mask) : mProperties & ~CastEnum(Mask));
+        }
+
+        // -=(Undocumented)=-
+        Bool HasProperty(Property Mask) const
+        {
+            return mProperties & CastEnum(Mask);
+        }
 
         // -=(Undocumented)=-
         Ref<Drawable> GetLayer(Layer Type)
@@ -48,6 +67,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+        UInt08             mProperties;
         Array<Drawable, 2> mLayers;
     };
 }

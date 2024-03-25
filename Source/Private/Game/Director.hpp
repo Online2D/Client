@@ -30,7 +30,7 @@ namespace Game
         static constexpr Real32 kDelay       = 0.25f;
 
         // -=(Undocumented)=-
-        static constexpr Real32 kMinimumZoom = 0.25f;
+        static constexpr Real32 kMinimumZoom = 0.1f;
 
         // -=(Undocumented)=-
         static constexpr Real32 kMaximumZoom = 16.0f;
@@ -175,8 +175,8 @@ namespace Game
 
         Graphic::Camera        mCamera;
         Vector2i               mSize;
-        Real32                 mZoom;
         Recti                  mBoundaries;
+        Real32                 mZoom;
         Interpolator<Vector3f> mTranslation;
         Interpolator<Real32>   mMagnitude;
     };
