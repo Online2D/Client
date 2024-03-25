@@ -51,7 +51,7 @@ namespace Game
                 mTick = Tick;
             }
 
-            Offset = static_cast<UInt32>((Tick - mTick) / mAnimation->Duration);
+            Offset = static_cast<UInt32>((Tick - mTick) * (Count / mAnimation->Duration));
 
             if (Offset >= Count)
             {
