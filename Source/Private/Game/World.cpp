@@ -184,11 +184,15 @@ namespace Game
     {
         for (UInt TileY = MinY; TileY < MaxY; ++TileY)
         {
+            const UInt32 WorldY = Region.GetPosition().GetY() + (TileY * Tile::kDimension);
+
             for (UInt TileX = MinX; TileX < MaxX; ++TileX)
             {
+                const UInt32 WorldX = Region.GetPosition().GetX() + (TileX * Tile::kDimension);
+
                 Ref<Tile> Tile = Region.GetTile(TileX, TileY);
-                DrawSprite(Tile.GetLayer(Tile::Layer::Floor), Drawable::Order::Background);
-                DrawSprite(Tile.GetLayer(Tile::Layer::Decal), Drawable::Order::Background);
+                DrawSprite(Tile.GetLayer(Tile::Layer::Floor), Vector3f(WorldX, WorldY, 0.0f), Drawable::Order::Background);
+                DrawSprite(Tile.GetLayer(Tile::Layer::Decal), Vector3f(WorldX, WorldY, 1.0f), Drawable::Order::Background);
             }
         }
     }
@@ -196,7 +200,6 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    // @TODO: Improve how Entity works and interact
     void World::DrawEntity(Ref<Entity> Entity)
     {
         switch (Entity.GetType())
@@ -204,13 +207,7 @@ namespace Game
             case Entity::Type::Object:
             {
                 Ref<Object> Actor = static_cast<Ref<Object>>(Entity);
-
-                /* @TODO: This is garbage */
-                const Rectf Boundaries = Actor.GetBoundaries();
-                Actor.GetDrawable().SetPosition(
-                    Vector3f(Boundaries.GetLeft(), Boundaries.GetTop(), Actor.GetPosition().GetZ()));
-
-                DrawSprite(Actor.GetDrawable(), Actor.GetPosition(), Drawable::Order::Middle);
+                DrawSprite(Actor.GetDrawable(), Entity.GetPosition(), Drawable::Order::Middle);
             }
             break;
         case Entity::Type::Character:
@@ -221,7 +218,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Center, Drawable::Order Order)
+    void World::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Position, Drawable::Order Order)
     {
         Ptr<const Animation> Animation = Drawable.GetAnimation();
         if (Animation)
@@ -244,17 +241,9 @@ namespace Game
                 mResources->Register(Material, false);
             }
 
-            Ref<const Vector3f> Position = Drawable.GetPosition();
-            Ref<const Rectf>    Source   = Drawable.GetFrame(mTime);
-            Rectf               Destination(
-                Position.GetX(),
-                Position.GetY(),
-                Position.GetX() + Animation->Width,
-                Position.GetY() + Animation->Height);
-
             // @TODO: Check if is possible to have unique depth, if not move this to GPU
             // @TODO: Fixed depth for fixed sprites (Background and Foreground)
-            const Vector3f Screen = mDirector.GetSpaceCoordinates(Vector3f(Center.GetX(), Center.GetY(), 0.0f));
+            const Vector3f Screen = mDirector.GetSpaceCoordinates(Position);
             const Real32   Depth  = Director::CalculateDepth(
                 CastEnum(Order),
                 Screen.GetX(),
@@ -262,8 +251,8 @@ namespace Game
                 Position.GetZ());
 
             mRenderer->DrawTexture(
-                Destination,
-                Source,
+                Drawable.GetBoundaries(Position),
+                Drawable.GetFrame(mTime),
                 Depth,
                 Drawable.GetRotation(),
                 Graphic::Renderer::Order::Opaque, // @TODO: Customizable

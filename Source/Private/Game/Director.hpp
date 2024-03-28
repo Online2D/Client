@@ -122,6 +122,12 @@ namespace Game
         }
 
         // -=(Undocumented)=-
+        Vector3f GetWorldCoordinates() const
+        {
+            return mCamera.GetPosition();
+        }
+
+        // -=(Undocumented)=-
         Vector3f GetWorldCoordinates(Ref<const Vector3f> Position)
         {
             return mCamera.GetWorldCoordinates(Position, Rectf(Vector2f(0.0f, 0.0f), mSize));
@@ -144,7 +150,7 @@ namespace Game
         // -=(Undocumented)=-
         static constexpr Real32 CalculateDepth(UInt64 Value)
         {
-            constexpr Real64 kFarPlane = static_cast<Real64>((1ull << 32) - 1);
+            constexpr Real64 kFarPlane = static_cast<Real64>((1ull << 24) - 1);
             return 1.0 - (Value / kFarPlane);
         }
 
@@ -153,11 +159,11 @@ namespace Game
         {
             constexpr UInt64 LayerBits     = 2;
             constexpr UInt64 LayerMask     = GetMask<UInt32>(LayerBits);
-            constexpr UInt64 YPositionBits = 12;
+            constexpr UInt64 YPositionBits = 10;
             constexpr UInt64 YPositionMask = GetMask<UInt32>(YPositionBits);
-            constexpr UInt64 XPositionBits = 12;
+            constexpr UInt64 XPositionBits = 10;
             constexpr UInt64 XPositionMask = GetMask<UInt32>(XPositionBits);
-            constexpr UInt64 ZPositionBits = 6;
+            constexpr UInt64 ZPositionBits = 2;
             constexpr UInt64 ZPositionMask = GetMask<UInt32>(ZPositionBits);
 
             const UInt64 Value =

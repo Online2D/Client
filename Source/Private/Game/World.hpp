@@ -92,13 +92,7 @@ namespace Game
         void DrawEntity(Ref<Entity> Entity);
 
         // -=(Undocumented)=-
-        void DrawSprite(Ref<Drawable> Drawable, Drawable::Order Order)
-        {
-            DrawSprite(Drawable, Drawable.GetPosition(), Order);
-        }
-
-        // -=(Undocumented)=-
-        void DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Center, Drawable::Order Order);
+        void DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Position, Drawable::Order Order);
 
     private:
 

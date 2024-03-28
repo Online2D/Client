@@ -58,6 +58,7 @@ namespace Game
         {
             mDrawable.SetAnimation(Animation);
             mDrawable.SetState(Drawable::State::Repeat);    // @TODO: Allow fire-once / toggle / repeat
+            mDrawable.SetPivot(Game::Drawable::Pivot::BottomCenter);
 
             if (Animation)
             {

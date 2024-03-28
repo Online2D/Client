@@ -41,6 +41,18 @@ namespace Game
         Region(Ref<const Content::Uri> Key);
 
         // -=(Undocumented)=-
+        void SetPosition(Vector2i Position)
+        {
+            mPosition = Position;
+        }
+
+        // -=(Undocumented)=-
+        Vector2i GetPosition() const
+        {
+            return mPosition;
+        }
+
+        // -=(Undocumented)=-
         Ref<Tile> GetTile(UInt32 X, UInt32 Y)
         {
             return mTiles[Y * kTilesPerColumn + X];
@@ -56,6 +68,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+        Vector2i                     mPosition;
         Array<Tile, kTilesPerRegion> mTiles;
     };
 }

@@ -39,6 +39,37 @@ namespace Game
         };
 
         // -=(Undocumented)=-
+        enum class Pivot
+        {
+            // -=(Undocumented)=-
+            TopLeft,
+
+            // -=(Undocumented)=-
+            TopCenter,
+
+            // -=(Undocumented)=-
+            TopRight,
+
+            // -=(Undocumented)=-
+            MiddleLeft,
+
+            // -=(Undocumented)=-
+            MiddleCenter,
+
+            // -=(Undocumented)=-
+            MiddleRight,
+
+            // -=(Undocumented)=-
+            BottomLeft,
+
+            // -=(Undocumented)=-
+            BottomCenter,
+
+            // -=(Undocumented)=-
+            BottomRight,
+        };
+
+        // -=(Undocumented)=-
         enum class Order
         {
             // -=(Undocumented)=-
@@ -55,18 +86,6 @@ namespace Game
 
         // -=(Undocumented)=-
         Drawable();
-
-        // -=(Undocumented)=-
-        void SetPosition(Vector3f Position)
-        {
-            mPosition = Position;
-        }
-
-        // -=(Undocumented)=-
-        Ref<const Vector3f> GetPosition() const
-        {
-            return mPosition;
-        }
 
         // -=(Undocumented)=-
         void SetRotation(Real32 Angles)
@@ -90,6 +109,18 @@ namespace Game
         Ref<const Color> GetColor() const
         {
             return mColor;
+        }
+
+        // -=(Undocumented)=-
+        void SetPivot(Pivot Pivot)
+        {
+            mPivot = Pivot;
+        }
+
+        // -=(Undocumented)=-
+        Pivot GetPivot() const
+        {
+            return mPivot;
         }
 
         // -=(Undocumented)=-
@@ -130,14 +161,17 @@ namespace Game
         // -=(Undocumented)=-
         Ref<const Rectf> GetFrame(Real64 Tick);
 
+        // -=(Undocumented)=-
+        Rectf GetBoundaries(Ref<const Vector3f> Position) const;
+
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Vector3f             mPosition;
         Real32               mRotation;
         Color                mColor;
+        Pivot                mPivot;
         State                mState;
         Ptr<const Animation> mAnimation;
         Real64               mTick;

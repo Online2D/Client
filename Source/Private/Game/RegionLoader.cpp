@@ -37,26 +37,19 @@ namespace Game
         constexpr UInt32 kMaskBlock = 0b00000001;
         constexpr UInt32 kMaskDecal = 0b00000010;
 
-        const UInt16   ChunkX = Input.ReadInt<UInt16>();
-        const UInt16   ChunkY = Input.ReadInt<UInt16>();
-        const Vector3f Position(
-            ChunkX * Region::kTilesPerRow    * Tile::kDimension,
-            ChunkY * Region::kTilesPerColumn * Tile::kDimension,
-            0.0f);
+        const UInt32 WorldX = Input.ReadInt<UInt16>() * Region::kTilesPerRow    * Tile::kDimension;
+        const UInt32 WorldY = Input.ReadInt<UInt16>() * Region::kTilesPerColumn * Tile::kDimension;
+        Asset->SetPosition(Vector2i(WorldX, WorldY));
 
         for (UInt32 Y = 0; Y < Region::kTilesPerColumn; ++Y)
         {
-            const UInt32 WorldY = Position.GetY() + (Y * Tile::kDimension);
-
             for (UInt32 X = 0; X < Region::kTilesPerRow; ++X)
             {
-                const UInt32 WorldX = Position.GetX() + (X * Tile::kDimension);
-
                 Ref<Tile> Tile = Asset->GetTile(X, Y);
 
                 const UInt08 Flags = Input.ReadUInt8();
 
-                ReadLayer(Input, Tile, Tile::Layer::Floor, WorldX, WorldY);
+                ReadLayer(Input, Tile, Tile::Layer::Floor);
 
                 if (Flags & kMaskBlock)
                 {
@@ -65,7 +58,7 @@ namespace Game
 
                 if (Flags & kMaskDecal)
                 {
-                    ReadLayer(Input, Tile, Tile::Layer::Decal, WorldX, WorldY);
+                    ReadLayer(Input, Tile, Tile::Layer::Decal);
                 }
             }
         }
@@ -75,7 +68,7 @@ namespace Game
             ConstSPtr<Entity> Entity = mEntities.Load(Input);
             if (Entity)
             {
-                Entity->SetPosition(Entity->GetPosition() + Position);
+                Entity->SetPosition(Entity->GetPosition() + Vector3f(WorldX, WorldY, 0.0f));
             }
         }
         return true;
@@ -84,14 +77,13 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void RegionLoader::ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type, Real32 X, Real32 Y)
+    void RegionLoader::ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type)
     {
         const UInt32 ID = Input.ReadInt<UInt32>();
         if (ID)
         {
             Ref<Drawable> Drawable = Tile.GetLayer(Type);
             Drawable.SetAnimation(mAnimator.GetAnimation(ID));
-            Drawable.SetPosition(Vector3f(X, Y, CastEnum(Type)));
             Drawable.SetState(Drawable::State::Repeat);
         }
     }

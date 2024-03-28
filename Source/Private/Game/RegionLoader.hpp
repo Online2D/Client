@@ -44,7 +44,7 @@ namespace Game
     private:
 
         // -=(Undocumented)=-
-        void ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type, Real32 X, Real32 Y);
+        void ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type);
 
     private:
 
