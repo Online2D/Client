@@ -128,13 +128,13 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        Vector3f GetWorldCoordinates(Ref<const Vector3f> Position)
+        Vector2f GetWorldCoordinates(Ref<const Vector2f> Position)
         {
             return mCamera.GetWorldCoordinates(Position, Rectf(Vector2f(0.0f, 0.0f), mSize));
         }
 
         // -=(Undocumented)=-
-        Vector3f GetSpaceCoordinates(Ref<const Vector3f> Position)
+        Vector2f GetSpaceCoordinates(Ref<const Vector2f> Position)
         {
             return mCamera.GetScreenCoordinates(Position, Rectf(Vector2f(0.0f, 0.0f), mSize));
         }

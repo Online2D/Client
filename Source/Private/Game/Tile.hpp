@@ -45,9 +45,15 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        void SetProperty(Property Mask, Bool Active)
+        void SetProperty(Property Mask)
         {
-            mProperties = (Active ? mProperties | CastEnum(Mask) : mProperties & ~CastEnum(Mask));
+            mProperties |= CastEnum(Mask);
+        }
+
+        // -=(Undocumented)=-
+        void UnsetProperty(Property Mask)
+        {
+            mProperties &= ~CastEnum(Mask);
         }
 
         // -=(Undocumented)=-

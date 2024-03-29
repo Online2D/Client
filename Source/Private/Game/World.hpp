@@ -92,7 +92,7 @@ namespace Game
         void DrawEntity(Ref<Entity> Entity);
 
         // -=(Undocumented)=-
-        void DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Position, Drawable::Order Order);
+        void DrawSprite(Ref<Drawable> Drawable, Ref<const Vector2f> Position, Real32 Depth, Drawable::Order Order);
 
     private:
 

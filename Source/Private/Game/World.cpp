@@ -121,10 +121,12 @@ namespace Game
 
     void World::Compute(Ref<const Recti> Viewport)
     {
-        const UInt32 RegionX1 = Viewport.GetLeft() / Region::kTilesPerRow;
-        const UInt32 RegionY1 = Viewport.GetTop()  / Region::kTilesPerColumn;
-        const UInt32 RegionX2 = std::ceilf(Viewport.GetRight()  / Region::kTilesPerRow);
-        const UInt32 RegionY2 = std::ceilf(Viewport.GetBottom() / Region::kTilesPerColumn);
+        constexpr UInt32 kExpansion = 1;
+
+        const UInt32 RegionX1 = std::floorf(Viewport.GetLeft() / Region::kTilesPerRow)     - kExpansion;
+        const UInt32 RegionY1 = std::floorf(Viewport.GetTop()  / Region::kTilesPerColumn)  - kExpansion;
+        const UInt32 RegionX2 = std::ceilf(Viewport.GetRight()  / Region::kTilesPerRow)    + kExpansion;
+        const UInt32 RegionY2 = std::ceilf(Viewport.GetBottom() / Region::kTilesPerColumn) + kExpansion;
 
         UInt32 MinLocalX = Viewport.GetLeft() % Region::kTilesPerRow;
         UInt32 MinLocalY = Viewport.GetTop()  % Region::kTilesPerColumn;
@@ -184,15 +186,15 @@ namespace Game
     {
         for (UInt TileY = MinY; TileY < MaxY; ++TileY)
         {
-            const UInt32 WorldY = Region.GetPosition().GetY() + (TileY * Tile::kDimension);
-
             for (UInt TileX = MinX; TileX < MaxX; ++TileX)
             {
-                const UInt32 WorldX = Region.GetPosition().GetX() + (TileX * Tile::kDimension);
+                const Vector2f Coordinates(
+                    Region.GetPosition().GetX() + (TileX * Tile::kDimension),
+                    Region.GetPosition().GetY() + (TileY * Tile::kDimension));
 
                 Ref<Tile> Tile = Region.GetTile(TileX, TileY);
-                DrawSprite(Tile.GetLayer(Tile::Layer::Floor), Vector3f(WorldX, WorldY, 0.0f), Drawable::Order::Background);
-                DrawSprite(Tile.GetLayer(Tile::Layer::Decal), Vector3f(WorldX, WorldY, 1.0f), Drawable::Order::Background);
+                DrawSprite(Tile.GetLayer(Tile::Layer::Floor), Coordinates, 0.0f, Drawable::Order::Background);
+                DrawSprite(Tile.GetLayer(Tile::Layer::Decal), Coordinates, 1.0f, Drawable::Order::Background);
             }
         }
     }
@@ -207,7 +209,7 @@ namespace Game
             case Entity::Type::Object:
             {
                 Ref<Object> Actor = static_cast<Ref<Object>>(Entity);
-                DrawSprite(Actor.GetDrawable(), Entity.GetPosition(), Drawable::Order::Middle);
+                DrawSprite(Actor.GetDrawable(), Entity.GetPosition(), 2.0f, Drawable::Order::Middle);
             }
             break;
         case Entity::Type::Character:
@@ -218,7 +220,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector3f> Position, Drawable::Order Order)
+    void World::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector2f> Position, Real32 Depth, Drawable::Order Order)
     {
         Ptr<const Animation> Animation = Drawable.GetAnimation();
         if (Animation)
@@ -243,12 +245,12 @@ namespace Game
 
             // @TODO: Check if is possible to have unique depth, if not move this to GPU
             // @TODO: Fixed depth for fixed sprites (Background and Foreground)
-            const Vector3f Screen = mDirector.GetSpaceCoordinates(Position);
-            const Real32   Depth  = Director::CalculateDepth(
+            const Vector2f Screen = mDirector.GetSpaceCoordinates(Position);
+            Depth  = Director::CalculateDepth(
                 CastEnum(Order),
                 Screen.GetX(),
                 Screen.GetY(),
-                Position.GetZ());
+                Depth);
 
             mRenderer->DrawTexture(
                 Drawable.GetBoundaries(Position),

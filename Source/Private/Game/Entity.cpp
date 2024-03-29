@@ -21,7 +21,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Entity::Entity(UInt32 ID, Type Type, Ref<const Vector3f> Position)
+    Entity::Entity(UInt32 ID, Type Type, Ref<const Vector2f> Position)
         : mID       { ID },
           mType     { Type },
           mPosition { Position }

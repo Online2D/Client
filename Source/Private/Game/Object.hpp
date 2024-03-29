@@ -27,7 +27,7 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        Object(UInt32 ID, Ref<const Vector3f> Position);
+        Object(UInt32 ID, Ref<const Vector2f> Position);
 
         // -=(Undocumented)=-
         void SetColor(Ref<const Color> Tint)

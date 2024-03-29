@@ -37,9 +37,11 @@ namespace Game
         constexpr UInt32 kMaskBlock = 0b00000001;
         constexpr UInt32 kMaskDecal = 0b00000010;
 
-        const UInt32 WorldX = Input.ReadInt<UInt16>() * Region::kTilesPerRow    * Tile::kDimension;
-        const UInt32 WorldY = Input.ReadInt<UInt16>() * Region::kTilesPerColumn * Tile::kDimension;
-        Asset->SetPosition(Vector2i(WorldX, WorldY));
+        const UInt32   WorldX = Input.ReadInt<UInt16>() * Region::kTilesPerRow    * Tile::kDimension;
+        const UInt32   WorldY = Input.ReadInt<UInt16>() * Region::kTilesPerColumn * Tile::kDimension;
+        const Vector2f WorldCoordinates(WorldX, WorldY);
+
+        Asset->SetPosition(WorldCoordinates);
 
         for (UInt32 Y = 0; Y < Region::kTilesPerColumn; ++Y)
         {
@@ -53,7 +55,7 @@ namespace Game
 
                 if (Flags & kMaskBlock)
                 {
-                    Tile.SetProperty(Game::Tile::Property::Block, true);
+                    Tile.SetProperty(Game::Tile::Property::Block);
                 }
 
                 if (Flags & kMaskDecal)
@@ -68,7 +70,7 @@ namespace Game
             ConstSPtr<Entity> Entity = mEntities.Load(Input);
             if (Entity)
             {
-                Entity->SetPosition(Entity->GetPosition() + Vector3f(WorldX, WorldY, 0.0f));
+                Entity->SetPosition(Entity->GetPosition() + WorldCoordinates);
             }
         }
         return true;

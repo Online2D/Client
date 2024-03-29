@@ -51,7 +51,7 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        Entity(UInt32 ID, Type Type, Ref<const Vector3f> Position);
+        Entity(UInt32 ID, Type Type, Ref<const Vector2f> Position);
 
         // -=(Undocumented)=-
         virtual ~Entity() = default;
@@ -69,13 +69,13 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        void SetPosition(Ref<const Vector3f> Position)
+        void SetPosition(Ref<const Vector2f> Position)
         {
             mPosition = Position;
         }
 
         // -=(Undocumented)=-
-        Ref<const Vector3f> GetPosition() const
+        Ref<const Vector2f> GetPosition() const
         {
             return mPosition;
         }
@@ -123,7 +123,7 @@ namespace Game
 
         UInt32   mID;
         Type     mType;
-        Vector3f mPosition;
+        Vector2f mPosition;
         Vector2f mSize;
     };
 }

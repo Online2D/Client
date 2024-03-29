@@ -33,11 +33,10 @@ namespace Game
     {
         const UInt32 ID   = Reader.ReadInt<UInt32>();
         const UInt32 Type = Reader.ReadInt<UInt32>();
-        const UInt32 X    = Reader.ReadReal32();
-        const UInt32 Y    = Reader.ReadReal32();
-        const UInt32 Z    = Reader.ReadReal32();
+        const UInt32 X    = Reader.ReadInt<UInt32>();
+        const UInt32 Y    = Reader.ReadInt<UInt32>();
 
-        SPtr<Entity> Actor = Create(ID, static_cast<Entity::Type>(Type), Vector3f(X, Y, Z));
+        SPtr<Entity> Actor = Create(ID, static_cast<Entity::Type>(Type), Vector2f(X, Y));
         if (Actor)
         {
             switch (Actor->GetType())
@@ -61,10 +60,9 @@ namespace Game
         Writer.WriteInt<UInt32>(Actor->GetID());
         Writer.WriteInt<UInt32>(CastEnum(Actor->GetType()));
 
-        Ref<const Vector3f> Position = Actor->GetPosition();
-        Writer.WriteReal32(Position.GetX());
-        Writer.WriteReal32(Position.GetY());
-        Writer.WriteReal32(Position.GetZ());
+        Ref<const Vector2f> Position = Actor->GetPosition();
+        Writer.WriteInt<UInt32>(Position.GetX());
+        Writer.WriteInt<UInt32>(Position.GetY());
 
         switch (Actor->GetType())
         {
@@ -80,7 +78,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    SPtr<Entity> Entities::Create(UInt32 ID, Entity::Type Type, Ref<const Vector3f> Position)
+    SPtr<Entity> Entities::Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position)
     {
         SPtr<Entity> Entity = nullptr;
 

@@ -39,7 +39,7 @@ namespace Game
         void Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor);
 
         // -=(Undocumented)=-
-        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector3f> Position);
+        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position);
 
         // -=(Undocumented)=-
         void Remove(ConstSPtr<Entity> Actor);

@@ -162,7 +162,7 @@ namespace Game
         Ref<const Rectf> GetFrame(Real64 Tick);
 
         // -=(Undocumented)=-
-        Rectf GetBoundaries(Ref<const Vector3f> Position) const;
+        Rectf GetBoundaries(Ref<const Vector2f> Position) const;
 
     private:
 

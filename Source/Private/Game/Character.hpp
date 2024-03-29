@@ -27,7 +27,7 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
-        Character(UInt32 ID, Ref<const Vector3f> Position);
+        Character(UInt32 ID, Ref<const Vector2f> Position);
 
         // @TODO: Attachment(s), Body, Animation
     };
