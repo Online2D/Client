@@ -92,17 +92,6 @@ namespace Game
             return mSize;
         }
 
-        // -=(Undocumented)=-
-        Rectf GetBoundaries() const
-        {
-            const Real32 HalfWidth = mSize.GetX() * 0.5f;
-            return Rectf(
-                mPosition.GetX() - HalfWidth,
-                mPosition.GetY() - mSize.GetY(),
-                mPosition.GetX() + HalfWidth,
-                mPosition.GetY());
-        }
-
     public:
 
         // -=(Undocumented)=-

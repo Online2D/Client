@@ -112,15 +112,15 @@ namespace Game
         }
 
         // -=(Undocumented)=-
-        void SetPivot(Pivot Pivot)
+        void SetOrigin(Pivot Origin)
         {
-            mPivot = Pivot;
+            mOrigin = Origin;
         }
 
         // -=(Undocumented)=-
-        Pivot GetPivot() const
+        Pivot GetOrigin() const
         {
-            return mPivot;
+            return mOrigin;
         }
 
         // -=(Undocumented)=-
@@ -162,7 +162,21 @@ namespace Game
         Ref<const Rectf> GetFrame(Real64 Tick);
 
         // -=(Undocumented)=-
-        Rectf GetBoundaries(Ref<const Vector2f> Position) const;
+        Rectf GetBoundaries(Ref<const Vector2f> Position) const
+        {
+            Rectf Boundaries(0.0f, 0.0f, 0.0f, 0.0f);
+
+            if (mAnimation)
+            {
+                Boundaries = GetBoundaries(mOrigin, Position, Vector2f(mAnimation->Width, mAnimation->Height));
+            }
+            return Boundaries;
+        }
+
+    public:
+
+        // -=(Undocumented)=-
+        static Rectf GetBoundaries(Pivot Origin, Ref<const Vector2f> Position, Ref<const Vector2f> Size);
 
     private:
 
@@ -171,7 +185,7 @@ namespace Game
 
         Real32               mRotation;
         Color                mColor;
-        Pivot                mPivot;
+        Pivot                mOrigin;
         State                mState;
         Ptr<const Animation> mAnimation;
         Real64               mTick;

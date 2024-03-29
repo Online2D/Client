@@ -126,7 +126,10 @@ namespace Game
         {
             ConstSPtr<Entity> Entity = Iterator.second;
 
-            if (Entity->GetBoundaries().Intersects(Area))
+            const Rectf Boundaries = Drawable::GetBoundaries(
+                Game::Drawable::Pivot::BottomCenter, Entity->GetPosition(), Entity->GetSize());
+            
+            if (Boundaries.Intersects(Area))
             {
                 Executor(* Entity);
             }

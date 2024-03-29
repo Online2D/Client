@@ -24,7 +24,7 @@ namespace Game
     Drawable::Drawable()
         : mRotation  { 0.0f },
           mColor     { 1.0f, 1.0f, 1.0f, 1.0f },
-          mPivot     { Pivot::TopLeft },
+          mOrigin    { Pivot::TopLeft },
           mAnimation { nullptr }
     {
         SetState(State::Stopped);
@@ -74,48 +74,46 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Rectf Drawable::GetBoundaries(Ref<const Vector2f> Position) const
+    Rectf Drawable::GetBoundaries(Pivot Origin, Ref<const Vector2f> Position, Ref<const Vector2f> Size)
     {
         Rectf Boundaries;
 
-        if (mAnimation)
-        {
-            const Real32 X      = Position.GetX();
-            const Real32 Y      = Position.GetY();
-            const Real32 Width  = mAnimation->Width;
-            const Real32 Height = mAnimation->Height;
+        const Real32 X      = Position.GetX();
+        const Real32 Y      = Position.GetY();
+        const Real32 Width  = Size.GetX();
+        const Real32 Height = Size.GetY();
 
-            switch (mPivot)
-            {
-            case Pivot::TopLeft:
-                Boundaries = Rectf(X, Y, X + Width, Y + Height);
-                break;
-            case Pivot::TopCenter:
-                Boundaries = Rectf(X - Width * 0.5f, Y, X + Width * 0.5f, Y + Height);
-                break;
-            case Pivot::TopRight:
-                Boundaries = Rectf(X - Width, Y, X, Y + Height);
-                break;
-            case Pivot::MiddleLeft:
-                Boundaries = Rectf(X, Y - Height * 0.5f, X + Width, Y + Height * 0.5f);
-                break;
-            case Pivot::MiddleCenter:
-                Boundaries = Rectf(X - Width * 0.5f, Y - Height * 0.5f, X + Width * 0.5f, Y + Height * 0.5f);
-                break;
-            case Pivot::MiddleRight:
-                Boundaries = Rectf(X - Width, Y - Height * 0.5f, X, Y + Height * 0.5f);
-                break;
-            case Pivot::BottomLeft:
-                Boundaries = Rectf(X, Y - Height, X + Width, Y);
-                break;
-            case Pivot::BottomCenter:
-                Boundaries = Rectf(X - Width * 0.5f, Y - Height, X + Width * 0.5f, Y);
-                break;
-            case Pivot::BottomRight:
-                Boundaries = Rectf(X - Width, Y - Height, X, Y);
-                break;
-            }
+        switch (Origin)
+        {
+        case Pivot::TopLeft:
+            Boundaries = Rectf(X, Y, X + Width, Y + Height);
+            break;
+        case Pivot::TopCenter:
+            Boundaries = Rectf(X - Width * 0.5f, Y, X + Width * 0.5f, Y + Height);
+            break;
+        case Pivot::TopRight:
+            Boundaries = Rectf(X - Width, Y, X, Y + Height);
+            break;
+        case Pivot::MiddleLeft:
+            Boundaries = Rectf(X, Y - Height * 0.5f, X + Width, Y + Height * 0.5f);
+            break;
+        case Pivot::MiddleCenter:
+            Boundaries = Rectf(X - Width * 0.5f, Y - Height * 0.5f, X + Width * 0.5f, Y + Height * 0.5f);
+            break;
+        case Pivot::MiddleRight:
+            Boundaries = Rectf(X - Width, Y - Height * 0.5f, X, Y + Height * 0.5f);
+            break;
+        case Pivot::BottomLeft:
+            Boundaries = Rectf(X, Y - Height, X + Width, Y);
+            break;
+        case Pivot::BottomCenter:
+            Boundaries = Rectf(X - Width * 0.5f, Y - Height, X + Width * 0.5f, Y);
+            break;
+        case Pivot::BottomRight:
+            Boundaries = Rectf(X - Width, Y - Height, X, Y);
+            break;
         }
+
         return Boundaries;
     }
 }
