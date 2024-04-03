@@ -92,7 +92,7 @@ namespace Game
                 // @TODO: Draw Foreground
 
                 // Draw Middle (Entities)
-                mEntities.Query(Viewport * Tile::kDimension, [this](Ref<Entity> Entity)
+                mEntities.Query(mDirector.GetBoundaries() * Tile::kDimension, [this](Ref<Entity> Entity)
                 {
                     DrawEntity(Entity);
                 });
@@ -121,12 +121,10 @@ namespace Game
 
     void World::Compute(Ref<const Recti> Viewport)
     {
-        constexpr UInt32 kExpansion = 1;
-
-        const UInt32 RegionX1 = std::floorf(Viewport.GetLeft() / Region::kTilesPerRow)     - kExpansion;
-        const UInt32 RegionY1 = std::floorf(Viewport.GetTop()  / Region::kTilesPerColumn)  - kExpansion;
-        const UInt32 RegionX2 = std::ceilf(Viewport.GetRight()  / Region::kTilesPerRow)    + kExpansion;
-        const UInt32 RegionY2 = std::ceilf(Viewport.GetBottom() / Region::kTilesPerColumn) + kExpansion;
+        const UInt32 RegionX1 = std::floorf(Viewport.GetLeft() / Region::kTilesPerRow);
+        const UInt32 RegionY1 = std::floorf(Viewport.GetTop()  / Region::kTilesPerColumn);
+        const UInt32 RegionX2 = std::ceilf(Viewport.GetRight()  / Region::kTilesPerRow);
+        const UInt32 RegionY2 = std::ceilf(Viewport.GetBottom() / Region::kTilesPerColumn);
 
         UInt32 MinLocalX = Viewport.GetLeft() % Region::kTilesPerRow;
         UInt32 MinLocalY = Viewport.GetTop()  % Region::kTilesPerColumn;

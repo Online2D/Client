@@ -27,6 +27,9 @@ namespace Game
     public:
 
         // -=(Undocumented)=-
+        static constexpr UInt32 kExpansion   = 32;
+
+        // -=(Undocumented)=-
         static constexpr Real32 kDelay       = 0.25f;
 
         // -=(Undocumented)=-

@@ -29,6 +29,74 @@ public:
         mInput->RemoveListener(shared_from_this());
     }
 
+    void AddCustom()
+    {
+        /*
+        Game::Animation Body_1 {
+            .ID       = 70004,
+            .File     = 70001,
+            .Width    = 18,
+            .Height   = 38,
+            .Frames   = {
+                Rectf {   7.0f / 256.0f, 19.0f / 256.0f,  25.0f / 256.0f, 57.0f / 256.0f },
+                Rectf {  39.0f / 256.0f, 19.0f / 256.0f,  58.0f / 256.0f, 57.0f / 256.0f },
+                Rectf {  71.0f / 256.0f, 19.0f / 256.0f,  90.0f / 256.0f, 57.0f / 256.0f },
+                Rectf { 103.0f / 256.0f, 19.0f / 256.0f, 122.0f / 256.0f, 57.0f / 256.0f },
+                Rectf { 135.0f / 256.0f, 19.0f / 256.0f, 153.0f / 256.0f, 57.0f / 256.0f },
+                Rectf { 166.0f / 256.0f, 19.0f / 256.0f, 185.0f / 256.0f, 57.0f / 256.0f },
+                Rectf { 198.0f / 256.0f, 19.0f / 256.0f, 217.0f / 256.0f, 57.0f / 256.0f },
+                Rectf { 230.0f / 256.0f, 19.0f / 256.0f, 249.0f / 256.0f, 57.0f / 256.0f },
+            },
+            .Duration = 1.0f
+        };
+        mWorld->GetAnimator().AddAnimation(Body_1);
+
+        Game::Animation Head_1 {
+            .ID       = 70000,
+            .File     = 70000,
+            .Width    = 11,
+            .Height   = 16,
+            .Frames   = {
+                Rectf { 3.0f / 68.0f, 0.0f / 16.0f, 14.0f / 68.0f, 16.0f / 16.0f }
+            },
+            .Duration = 0.0f
+        };
+        Game::Animation Head_2 {
+            .ID       = 70001,
+            .File     = 70000,
+            .Width    = 11,
+            .Height   = 16,
+            .Frames   = {
+                Rectf { 19.0f / 68.0f, 0.0f / 16.0f, (31.0f + 1) / 68.0f, (15.0f + 1) / 16.0f }
+            },
+            .Duration = 0.0f
+        };
+        Game::Animation Head_3 {
+            .ID       = 70002,
+            .File     = 70000,
+            .Width    = 11,
+            .Height   = 16,
+            .Frames   = {
+                Rectf { 36.0f / 68.0f, 0.0f / 16.0f, (48.0f + 1) / 68.0f, (15.0f + 1) / 16.0f }
+            },
+            .Duration = 0.0f
+        };
+        Game::Animation Head_4 {
+            .ID       = 70003,
+            .File     = 70000,
+            .Width    = 11,
+            .Height   = 16,
+            .Frames   = {
+                Rectf { 54.0f / 68.0f, 0.0f / 16.0f, (64.0f + 1) / 68.0f, (14.0f + 1) / 16.0f }
+            },
+            .Duration = 0.0f
+        };
+        mWorld->GetAnimator().AddAnimation(Head_4);
+        mWorld->GetAnimator().AddAnimation(Head_3);
+        mWorld->GetAnimator().AddAnimation(Head_2);
+        mWorld->GetAnimator().AddAnimation(Head_1);*/
+    }
+
     // -=(Undocumented)=-
     void OnInitialize(ConstSPtr<Platform::Window> Display)
     {
@@ -37,7 +105,7 @@ public:
 
         // Initialize our custom locator
         ConstSPtr<Content::Service> Resources = GetSubsystem<Content::Service>();
-        Resources->AddLocator("Resources", NewPtr<Content::SystemLocator>("Resources\\"));
+        Resources->AddLocator("Resources", NewPtr<Content::SystemLocator>("C:\\Users\\Agustin\\Workspace\\Online-MMO-Resources\\"));
 
         // Init input Service
         mInput = GetSubsystem<Input::Service>();
@@ -47,10 +115,12 @@ public:
         mWorld = NewPtr<Game::World>();
         mWorld->Initialize(GetContext());
         mWorld->GetDirector().SetViewport(Display->GetSize());
-        mWorld->GetDirector().SetPosition(Vector2i(345, 720));
+        mWorld->GetDirector().SetPosition(Vector2i(290, 990));
 
         // Set the window visible
         Display->SetVisible(true);
+
+        AddCustom();
     }
 
     // -=(Undocumented)=-
@@ -105,8 +175,8 @@ int main()
     ::CoInitialize(nullptr);
 #endif // EA_PLATFORM_WINDOWS
 
-    static constexpr UInt WINDOW_WIDTH  = 1280;
-    static constexpr UInt WINDOW_HEIGHT = 1024;
+    static constexpr UInt WINDOW_WIDTH  = 1024;
+    static constexpr UInt WINDOW_HEIGHT = 768;
 
     Engine::Properties Properties;
     Properties.SetWindowTitle("Online MMO v0.1");
@@ -130,126 +200,3 @@ int main()
 
     return 0;
 }
-/*
-Vector<Game::Animation> mAnimations;
-
-void LoadAnimations(ConstSPtr<Content::Service> Service)
-{
-    Service->AddLocator("Resources", NewPtr<Content::SystemLocator>("C:\\Users\\Agustin\\Workspace\\Online-MMO-Resources\\"));
-
-
-    Chunk File = Service->Find(Content::Uri("Resources://Data/Sprites.ind"));
-
-    if (File.HasData())
-    {
-        Reader InMemoryReader(File.GetSpan<UInt08>());
-
-        InMemoryReader.Skip(4); // Version
-        mAnimations.resize(InMemoryReader.ReadUInt32() + 1);
-
-        while (InMemoryReader.GetAvailable() > 0)
-        {
-            UInt Index = InMemoryReader.ReadUInt32();
-            if (Index != 0)
-            {
-                Ref<Game::Animation> SpriteInfo = mAnimations[Index];
-
-                SInt Frames = InMemoryReader.ReadUInt16();
-                if (Frames > 1)
-                {
-                    while (--Frames >= 0)
-                    {
-                        UInt ID = InMemoryReader.ReadUInt32();
-
-                        if (mAnimations[ID].Frames.empty())
-                        {
-                            LOG_WARNING("INVALID?");
-                        }
-                        else
-                        {
-                            Ref<Game::Animation> Other = mAnimations[ID];
-                            SpriteInfo.File = Other.File;
-                            SpriteInfo.Width = Other.Width;
-                            SpriteInfo.Height = Other.Height;
-
-                            Ref<Rectf> Frame = SpriteInfo.Frames.emplace_back();
-                            Ref<Rectf> OtherD = mAnimations[ID].Frames[0];
-                            Frame = OtherD;
-                        }
-
-                        mAnimations[ID].Frames.clear();
-                    }
-
-                    SpriteInfo.Duration = InMemoryReader.ReadReal32() / 1000.0f;
-                }
-                else
-                {
-                    Ref<Rectf> Frame = SpriteInfo.Frames.emplace_back();
-
-                    SpriteInfo.File = InMemoryReader.ReadUInt32();
-
-                    InMemoryReader.Skip(4); // SX SY
-                    SpriteInfo.Width = (InMemoryReader.ReadUInt16());
-                    SpriteInfo.Height = (InMemoryReader.ReadUInt16());
-
-                    const Real32 SX1 = InMemoryReader.ReadReal32();
-                    const Real32 SY1 = InMemoryReader.ReadReal32();
-                    const Real32 SX2 = InMemoryReader.ReadReal32();
-                    const Real32 SY2 = InMemoryReader.ReadReal32();
-
-                    Frame.Set(SX1, SY1, SX1 + SX2, SY1 + SY2);
-                }
-            }
-        }
-    }
-
-    Writer Output;
-    Output.WriteInt(mAnimations.size());
-
-    for (int ID = 0; ID < mAnimations.size(); ++ID)
-    {
-        Ref<Game::Animation> Animation = mAnimations[ID];
-        if (Animation.Frames.empty())
-        {
-            continue;
-        }
-
-        Output.WriteInt(ID);
-        Output.WriteInt(Animation.File);
-        Output.WriteInt(Animation.Width);
-        Output.WriteInt(Animation.Height);
-        Output.WriteReal32(Animation.Duration);
-
-        Output.WriteInt(Animation.Frames.size());
-
-        for (int i = 0; i < Animation.Frames.size(); ++i)
-        {
-            Ref<Rectf> Frame = Animation.Frames[i];
-            Output.WriteReal32(Frame.GetLeft());
-            Output.WriteReal32(Frame.GetTop());
-            Output.WriteReal32(Frame.GetRight());
-            Output.WriteReal32(Frame.GetBottom());
-        }
-    }
-
-    Service->Save(Content::Uri("Resources://Data/Animations.bin"), Output.GetData());
-}
-
-int main()
-{
-    static constexpr UInt WINDOW_WIDTH  = 1280;
-    static constexpr UInt WINDOW_HEIGHT = 1024;
-
-    Engine::Properties Properties;
-    Properties.SetWindowTitle("Online MMO v0.1");
-    Properties.SetWindowWidth(WINDOW_WIDTH);
-    Properties.SetWindowHeight(WINDOW_HEIGHT);
-    Properties.SetWindowMode(false, true);
-
-    Engine::Kernel Kernel;
-    Kernel.Initialize(decltype(Kernel)::Mode::Client, Properties);
-
-    LoadAnimations(Kernel.GetSubsystem<Content::Service>());
-
-    return 0;
-}*/

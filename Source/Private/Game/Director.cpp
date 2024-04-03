@@ -48,8 +48,8 @@ namespace Game
         {
             Ref<const Vector3f> Position = mCamera.GetPosition();
 
-            const Real32 HalfWidth  = (mSize.GetX() * 0.5f * mZoom) + Tile::kDimension;
-            const Real32 HalfHeight = (mSize.GetY() * 0.5f * mZoom) + Tile::kDimension;
+            const Real32 HalfWidth  = (mSize.GetX() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
+            const Real32 HalfHeight = (mSize.GetY() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
 
             mBoundaries.Set(
                 Position.GetX() - HalfWidth, Position.GetY() - HalfHeight,
