@@ -22,7 +22,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     Character::Character(UInt32 ID, Ref<const Vector2f> Position)
-        : Entity(ID, Entity::Type::Object, Position)
+        : Entity(ID, Entity::Type::Character, Position)
     {
     }
 }

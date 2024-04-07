@@ -34,6 +34,15 @@ namespace Game
         Bool Initialize(Ref<Subsystem::Context> Context);
 
         // -=(Undocumented)=-
+        void SetAnimation(Ref<const Animation> Animation)
+        {
+            if (mAnimations.capacity() > Animation.ID)
+            {
+                mAnimations[Animation.ID] = Animation;
+            }
+        }
+
+        // -=(Undocumented)=-
         Ptr<const Animation> GetAnimation(UInt32 ID) const
         {
             return (ID < mAnimations.size() ? & mAnimations[ID] : nullptr);
