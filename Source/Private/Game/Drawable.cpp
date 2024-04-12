@@ -76,44 +76,17 @@ namespace Game
 
     Rectf Drawable::GetBoundaries(Pivot Origin, Ref<const Vector2f> Position, Ref<const Vector2f> Size)
     {
-        Rectf Boundaries;
-
-        const Real32 X      = Position.GetX();
-        const Real32 Y      = Position.GetY();
-        const Real32 Width  = Size.GetX();
-        const Real32 Height = Size.GetY();
-
-        switch (Origin)
-        {
-        case Pivot::TopLeft:
-            Boundaries = Rectf(X, Y, X + Width, Y + Height);
-            break;
-        case Pivot::TopCenter:
-            Boundaries = Rectf(X - Width * 0.5f, Y, X + Width * 0.5f, Y + Height);
-            break;
-        case Pivot::TopRight:
-            Boundaries = Rectf(X - Width, Y, X, Y + Height);
-            break;
-        case Pivot::MiddleLeft:
-            Boundaries = Rectf(X, Y - Height * 0.5f, X + Width, Y + Height * 0.5f);
-            break;
-        case Pivot::MiddleCenter:
-            Boundaries = Rectf(X - Width * 0.5f, Y - Height * 0.5f, X + Width * 0.5f, Y + Height * 0.5f);
-            break;
-        case Pivot::MiddleRight:
-            Boundaries = Rectf(X - Width, Y - Height * 0.5f, X, Y + Height * 0.5f);
-            break;
-        case Pivot::BottomLeft:
-            Boundaries = Rectf(X, Y - Height, X + Width, Y);
-            break;
-        case Pivot::BottomCenter:
-            Boundaries = Rectf(X - Width * 0.5f, Y - Height, X + Width * 0.5f, Y);
-            break;
-        case Pivot::BottomRight:
-            Boundaries = Rectf(X - Width, Y - Height, X, Y);
-            break;
-        }
-
-        return Boundaries;
+        constexpr Rectf kMultiplier[] = {
+            Rectf( 0.0f,  0.0f, 1.0f, 1.0f),  // TopLeft
+            Rectf(-0.5f,  0.0f, 0.5f, 1.0f),  // TopCenter
+            Rectf(-1.0f,  0.0f, 0.0f, 1.0f),  // TopRight
+            Rectf( 0.0f, -0.5f, 1.0f, 0.5f),  // MiddleLeft
+            Rectf(-0.5f, -0.5f, 0.5f, 0.5f),  // MiddleCenter
+            Rectf(-1.0f, -0.5f, 0.0f, 0.5f),  // MiddleRight
+            Rectf( 0.0f, -1.0f, 1.0f, 0.0f),  // BottomLeft
+            Rectf(-0.5f, -1.0f, 0.5f, 0.0f),  // BottomCenter
+            Rectf(-1.0f, -1.0f, 0.0f, 0.0f),  // BottomRight
+        };
+        return Rectf(Position, Position) + (kMultiplier[CastEnum(Origin)] * Size);
     }
 }
