@@ -87,6 +87,6 @@ namespace Game
             Rectf(-0.5f, -1.0f, 0.5f, 0.0f),  // BottomCenter
             Rectf(-1.0f, -1.0f, 0.0f, 0.0f),  // BottomRight
         };
-        return Rectf(Position, Position) + (kMultiplier[CastEnum(Origin)] * Size);
+        return kMultiplier[CastEnum(Origin)] * Size + Position;
     }
 }
