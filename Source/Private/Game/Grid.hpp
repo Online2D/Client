@@ -13,7 +13,6 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
-#include "Grid.hpp"
 #include "Object.hpp"
 #include "Character.hpp"
 
@@ -24,22 +23,17 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    // @TODO: Entity Component (Not ECS shit) DOD system.
-    class Entities final
+    class Grid final
     {
     public:
 
         // -=(Undocumented)=-
-        Entities(Ref<Animator> Animator);
+        static constexpr UInt32 kDimension = 16;
+
+    public:
 
         // -=(Undocumented)=-
-        SPtr<Entity> Load(Ref<Reader> Reader);
-
-        // -=(Undocumented)=-
-        void Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor);
-
-        // -=(Undocumented)=-
-        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position);
+        void Insert(ConstSPtr<Entity> Actor);
 
         // -=(Undocumented)=-
         void Update(ConstSPtr<Entity> Actor);
@@ -48,40 +42,47 @@ namespace Game
         void Remove(ConstSPtr<Entity> Actor);
 
         // -=(Undocumented)=-
-        SPtr<Entity> Find(UInt32 ID)
-        {
-            const auto Iterator = mDatabase.find(ID);
-            return (Iterator != mDatabase.end() ? Iterator->second : nullptr);
-        }
-
-        // -=(Undocumented)=-
         template<typename Function>
-        void Query(Ref<const Rectf> Area, Function Executor)
+        void Query(Ref<const Rectf> Area, Function Executor) const
         {
-            mPartitioner.template Query<Function>(Area, Executor);
+            const Rectf Boundaries = Rectf::Max(Area, Rectf(0, 0, 0, 0)) / kDimension;
+
+            for (UInt32 CellY = Boundaries.GetTop(); CellY <= Boundaries.GetBottom(); ++CellY)
+            {
+                for (UInt32 CellX = Boundaries.GetLeft(); CellX <= Boundaries.GetRight(); ++CellX)
+                {
+                    const auto Iterator = mCells.find(GetCell(CellX, CellY));
+                    if (Iterator != mCells.end())
+                    {
+                        for (ConstSPtr<Entity> Actor : Iterator->second)
+                        {
+                            const Rectf Collision = Drawable::GetBoundaries(
+                                Game::Drawable::Pivot::BottomCenter, Actor->GetPosition(), Actor->GetSize());
+
+                            if (Collision.Intersects(Area))
+                            {
+                                Executor(* Actor);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     private:
 
         // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Entity);
-
-        // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Entity);
-
-        // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Character);
-
-        // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Character);
+        static constexpr UInt32 GetCell(UInt32 X, UInt32 Y)
+        {
+            return Y * UINT16_MAX + X;
+        }
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Grid                        mPartitioner;
-        Ref<Animator>               mAnimator;
-        Table<UInt32, SPtr<Entity>> mDatabase;
+       Table<UInt32, Vector<SPtr<Entity>>> mCells;
+       Table<UInt32, Rectf>                mBoundaries;
     };
 }

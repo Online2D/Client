@@ -49,6 +49,7 @@ namespace Game
                 break;
             }
         }
+
         return Actor;
     }
 
@@ -80,28 +81,36 @@ namespace Game
 
     SPtr<Entity> Entities::Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position)
     {
-        SPtr<Entity> Entity = nullptr;
+        SPtr<Entity> Actor = nullptr;
 
         switch (Type)
         {
         case Entity::Type::Object:
-            Entity = NewPtr<Object>(ID, Position);
+            Actor = NewPtr<Object>(ID, Position);
             break;
         case Entity::Type::Character:
-            Entity = NewPtr<Character>(ID, Position);
+            Actor = NewPtr<Character>(ID, Position);
             break;
         }
 
-        if (Entity)
+        if (Actor)
         {
-            const auto Iterator = mDatabase.emplace(ID, Entity);
+            const auto Iterator = mDatabase.emplace(ID, Actor);
 
             if (Iterator.second)
             {
-                // TODO: Insert to Tree
+                mPartitioner.Insert(Actor);
             }
         }
-        return Entity;
+        return Actor;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Entities::Update(ConstSPtr<Entity> Actor)
+    {
+        mPartitioner.Update(Actor);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -113,26 +122,7 @@ namespace Game
 
         if (Succeed)
         {
-            // TODO: Remove from Tree
-        }
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Entities::Query(Ref<const Rectf> Area, FPtr<void (Ref<Entity>)> Executor)
-    {
-        for (const auto Iterator : mDatabase)   // @TODO: Replace with data partition structure
-        {
-            ConstSPtr<Entity> Entity = Iterator.second;
-
-            const Rectf Boundaries = Drawable::GetBoundaries(
-                Game::Drawable::Pivot::BottomCenter, Entity->GetPosition(), Entity->GetSize());
-            
-            if (Boundaries.Intersects(Area))
-            {
-                Executor(* Entity);
-            }
+            mPartitioner.Remove(Actor);
         }
     }
 
@@ -177,5 +167,4 @@ namespace Game
     {
         // @TODO
     }
-
 }

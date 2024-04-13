@@ -99,7 +99,7 @@ namespace Game
                 mRenderer->Flush();
 
                 // Draw Background (Floor, Decal, ...)
-                for (Ref<const Chunk> Chunk : mChunks)
+                for (Ref<const Chunk> Chunk : mTerrain)
                 {
                     const UInt32 MinLocalX = Chunk.Dimension.GetLeft();
                     const UInt32 MinLocalY = Chunk.Dimension.GetTop();
@@ -129,7 +129,7 @@ namespace Game
         UInt32 MinLocalX = Viewport.GetLeft() % Region::kTilesPerRow;
         UInt32 MinLocalY = Viewport.GetTop()  % Region::kTilesPerColumn;
 
-        mChunks.clear(); // @TODO: Should we dispose it immediately or let the content manager do it?
+        mTerrain.clear(); // @TODO: Should we dispose it immediately or let the content manager do it?
 
         for (UInt32 RegionY = RegionY1; RegionY <= RegionY2; ++RegionY)
         {
@@ -145,7 +145,7 @@ namespace Game
 
                 if (ConstSPtr<Region> Region = mResources->Load<Game::Region>(Content::Uri(Filename)))
                 {
-                    mChunks.emplace_back(Recti(MinLocalX, MinLocalY, MaxLocalX, MaxLocalY), Region);
+                    mTerrain.emplace_back(Recti(MinLocalX, MinLocalY, MaxLocalX, MaxLocalY), Region);
                 }
 
                 MinLocalX = 0;

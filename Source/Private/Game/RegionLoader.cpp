@@ -67,10 +67,12 @@ namespace Game
 
         for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
         {
-            ConstSPtr<Entity> Entity = mEntities.Load(Input);
-            if (Entity)
+            ConstSPtr<Entity> Actor = mEntities.Load(Input);
+            if (Actor)
             {
-                Entity->SetPosition(Entity->GetPosition() + WorldCoordinates);
+                Actor->SetPosition(Actor->GetPosition() + WorldCoordinates);
+
+                mEntities.Update(Actor);
             }
         }
         return true;
