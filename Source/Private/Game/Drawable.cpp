@@ -76,7 +76,7 @@ namespace Game
 
     Rectf Drawable::GetBoundaries(Pivot Origin, Ref<const Vector2f> Position, Ref<const Vector2f> Size)
     {
-        constexpr Rectf kMultiplier[] = {
+        static constexpr Rectf kMultiplier[] = {
             Rectf( 0.0f,  0.0f, 1.0f, 1.0f),  // TopLeft
             Rectf(-0.5f,  0.0f, 0.5f, 1.0f),  // TopCenter
             Rectf(-1.0f,  0.0f, 0.0f, 1.0f),  // TopRight

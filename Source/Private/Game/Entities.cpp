@@ -129,23 +129,23 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Entities::OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Entity)
+    void Entities::OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Actor)
     {
         const UInt32 Animation = Reader.ReadInt<UInt32>();
         const UInt16 Rotation  = Reader.ReadInt<UInt16>();
         const UInt32 Tint      = Reader.ReadInt<UInt32>();
 
-        Entity->SetDrawable(mAnimator.GetAnimation(Animation));
-        Entity->SetRotation(Rotation);
-        Entity->SetColor(Tint);
+        Actor->SetDrawable(mAnimator.GetAnimation(Animation));
+        Actor->SetRotation(Rotation);
+        Actor->SetColor(Tint);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Entities::OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Entity)
+    void Entities::OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Actor)
     {
-        Ref<const Drawable> Drawable = Entity->GetDrawable();
+        Ref<const Drawable> Drawable = Actor->GetDrawable();
 
         Writer.WriteInt<UInt32>(Drawable.HasAnimation() ? Drawable.GetAnimation()->ID : 0);
         Writer.WriteInt<UInt16>(Drawable.GetRotation());
@@ -155,7 +155,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Entities::OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Character)
+    void Entities::OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Actor)
     {
         // @TODO
     }
@@ -163,7 +163,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Entities::OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Character)
+    void Entities::OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Actor)
     {
         // @TODO
     }

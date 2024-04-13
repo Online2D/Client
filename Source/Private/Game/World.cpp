@@ -92,9 +92,9 @@ namespace Game
                 // @TODO: Draw Foreground
 
                 // Draw Middle (Entities)
-                mEntities.Query(mDirector.GetBoundaries() * Tile::kDimension, [this](Ref<Entity> Entity)
+                mEntities.Query(mDirector.GetBoundaries() * Tile::kDimension, [this](Ref<Entity> Actor)
                 {
-                    DrawEntity(Entity);
+                    DrawEntity(Actor);
                 });
                 mRenderer->Flush();
 
@@ -200,14 +200,14 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawEntity(Ref<Entity> Entity)
+    void World::DrawEntity(Ref<Entity> Actor)
     {
-        switch (Entity.GetType())
+        switch (Actor.GetType())
         {
             case Entity::Type::Object:
             {
-                Ref<Object> Actor = static_cast<Ref<Object>>(Entity);
-                DrawSprite(Actor.GetDrawable(), Entity.GetPosition(), 2.0f, Drawable::Order::Middle);
+                Ref<Object> Object = static_cast<Ref<Game::Object>>(Actor);
+                DrawSprite(Object.GetDrawable(), Object.GetPosition(), 2.0f, Drawable::Order::Middle);
             }
             break;
         case Entity::Type::Character:

@@ -64,16 +64,16 @@ namespace Game
     private:
 
         // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Entity);
+        void OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Actor);
 
         // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Entity);
+        void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Actor);
 
         // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Character);
+        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Actor);
 
         // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Character);
+        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Actor);
 
     private:
 
