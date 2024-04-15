@@ -23,7 +23,7 @@
 namespace Game
 {
     // -=(Undocumented)=-
-    class Grid final
+    class Partitioner final
     {
     public:
 

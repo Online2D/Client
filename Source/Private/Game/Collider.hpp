@@ -12,39 +12,44 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include <Network/Client.hpp>
-#include <Network/Protocol.hpp>
-#include "LobbyPackets.hpp"
+#include "Core/Core.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Endpoint
+namespace Game
 {
     // -=(Undocumented)=-
-    class LobbyProtocol final : public Network::Protocol
+    class Collider final
     {
     public:
 
         // -=(Undocumented)=-
-        void OnAttach(ConstSPtr<Network::Client> Client) override;
+        static constexpr UInt32 kMaxPoints = 16;
+
+    public:
 
         // -=(Undocumented)=-
-        void OnDetach(ConstSPtr<Network::Client> Client) override;
+        void Add(Ref<const Vector2f> Point)
+        {
+            mPoints.emplace_back(Point);
+        }
 
         // -=(Undocumented)=-
-        void OnError(ConstSPtr<Network::Client> Client, UInt Error, CStr Description) override;
+        void Clear()
+        {
+            mPoints.clear();
+        }
 
         // -=(Undocumented)=-
-        void OnRead(ConstSPtr<Network::Client> Client,  CPtr<UInt08> Bytes) override;
-
-        // -=(Undocumented)=-
-        void OnWrite(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override;
+        Bool Collides(Ref<const Collider> Instigator) const;
 
     private:
 
-        // -=(Undocumented)=-
-        void Handle_LobbyAccountError(ConstSPtr<Network::Client> Client, Ref<const LobbyAccountError> Message);
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        Stack<Vector2f, kMaxPoints> mPoints;
     };
 }

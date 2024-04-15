@@ -58,6 +58,8 @@ namespace Game
 
         OnUpdate(Delta);
         OnRender(Delta);
+
+        // @TODO: Prune World.
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -129,7 +131,7 @@ namespace Game
         UInt32 MinLocalX = Viewport.GetLeft() % Region::kTilesPerRow;
         UInt32 MinLocalY = Viewport.GetTop()  % Region::kTilesPerColumn;
 
-        mTerrain.clear(); // @TODO: Should we dispose it immediately or let the content manager do it?
+        mTerrain.clear();
 
         for (UInt32 RegionY = RegionY1; RegionY <= RegionY2; ++RegionY)
         {

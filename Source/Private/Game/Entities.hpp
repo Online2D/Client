@@ -13,7 +13,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Animator.hpp"
-#include "Grid.hpp"
+#include "Partitioner.hpp"
 #include "Object.hpp"
 #include "Character.hpp"
 
@@ -80,7 +80,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Grid                        mPartitioner;
+        Partitioner                 mPartitioner;
         Ref<Animator>               mAnimator;
         Table<UInt32, SPtr<Entity>> mDatabase;
     };
