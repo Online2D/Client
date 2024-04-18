@@ -53,11 +53,7 @@ namespace Game
 
                 for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
                 {
-                    Ref<Rectf> Frame = Animation.Frames.emplace_back();
-                    Frame.SetLeft(Input.ReadReal32());
-                    Frame.SetTop(Input.ReadReal32());
-                    Frame.SetRight(Input.ReadReal32());
-                    Frame.SetBottom(Input.ReadReal32());
+                    Animation.Frames.emplace_back(Input.Read<Rectf>());
                 }
             }
         }
