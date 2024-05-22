@@ -24,21 +24,24 @@ namespace Game
     struct Animation final
     {
         // -=(Undocumented)=-
-        UInt32           ID;
+        static constexpr UInt kMaxFrames = 16;
 
         // -=(Undocumented)=-
-        UInt32           File;
+        UInt32                   ID;
 
         // -=(Undocumented)=-
-        UInt16           Width;
+        UInt32                   File;
 
         // -=(Undocumented)=-
-        UInt16           Height;
+        UInt16                   Width;
 
         // -=(Undocumented)=-
-        Stack<Rectf, 16> Frames;
+        UInt16                   Height;
 
         // -=(Undocumented)=-
-        Real32           Duration;
+        Stack<Rectf, kMaxFrames> Frames;
+
+        // -=(Undocumented)=-
+        Real32                   Duration;
     };
 }

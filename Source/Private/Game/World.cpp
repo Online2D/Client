@@ -43,7 +43,7 @@ namespace Game
         mAnimator.Initialize(Context);
 
         // Initialize our default resource(s)
-        mRenderer  = NewUniquePtr<Graphic::Renderer>(Context);
+        mRenderer  = NewPtr<Graphic::Renderer>(Context);
         mPipeline  = mResources->Load<Graphic::Pipeline>("Resources://Pipeline/Sprite.effect");
         mFont      = mResources->Load<Graphic::Font>("Resources://Font/Primary.arfont");
     }

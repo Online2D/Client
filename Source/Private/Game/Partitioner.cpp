@@ -30,7 +30,7 @@ namespace Game
         {
             for (UInt32 CellX = Boundaries.GetLeft(); CellX <= Boundaries.GetRight(); ++CellX)
             {
-                Ref<Vector<SPtr<Entity>>> Cell = mCells[GetCell(CellX, CellY)];
+                Ref<Cell> Cell = mCells[GetCell(CellX, CellY)];
                 Cell.emplace_back(Actor);
             }
         }
@@ -57,7 +57,7 @@ namespace Game
         {
             for (UInt32 CellX = Boundaries.GetLeft(); CellX <= Boundaries.GetRight(); ++CellX)
             {
-                Ref<Vector<SPtr<Entity>>> Cell = mCells[GetCell(CellX, CellY)];
+                Ref<Cell> Cell = mCells[GetCell(CellX, CellY)];
                 Cell.erase(std::remove(Cell.begin(), Cell.end(), Actor));
             }
         }

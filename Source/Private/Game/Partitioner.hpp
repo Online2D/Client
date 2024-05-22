@@ -72,6 +72,9 @@ namespace Game
     private:
 
         // -=(Undocumented)=-
+        using Cell = Vector<SPtr<Entity>>;
+
+        // -=(Undocumented)=-
         static constexpr UInt32 GetCell(UInt32 X, UInt32 Y)
         {
             return Y * UINT16_MAX + X;
@@ -82,7 +85,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-       Table<UInt32, Vector<SPtr<Entity>>> mCells;
-       Table<UInt32, Rectf>                mBoundaries;
+       Table<UInt32, Cell>  mCells;
+       Table<UInt32, Rectf> mBoundaries;
     };
 }
