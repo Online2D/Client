@@ -12,76 +12,81 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Animator.hpp"
-#include "Partitioner.hpp"
-#include "Object.hpp"
-#include "Character.hpp"
+#include "GatewayPackets.hpp"
+#include <Engine/Kernel.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace Gameplay
 {
     // -=(Undocumented)=-
-    // @TODO: Entity Component (Not ECS shit) DOD system.
-    class Entities final
+    class Gateway final : public EnableSmartPointer<Gateway>, public Engine::Activity, public Network::Protocol
     {
     public:
 
         // -=(Undocumented)=-
-        Entities(Ref<Animator> Animator);
+        static constexpr CStr kRemoteAddress = "127.0.0.1";
 
         // -=(Undocumented)=-
-        SPtr<Entity> Load(Ref<Reader> Reader);
+        static constexpr UInt kRemotePort    = 7666;
+
+    public:
 
         // -=(Undocumented)=-
-        void Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor);
-
-        // -=(Undocumented)=-
-        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position);
-
-        // -=(Undocumented)=-
-        void Update(ConstSPtr<Entity> Actor);
-
-        // -=(Undocumented)=-
-        void Remove(ConstSPtr<Entity> Actor);
-
-        // -=(Undocumented)=-
-        SPtr<Entity> Find(UInt32 ID)
+        enum class State
         {
-            const auto Iterator = mDatabase.find(ID);
-            return (Iterator != mDatabase.end() ? Iterator->second : nullptr);
-        }
+            Idle,
+            Authenticate,
+            Create,
+            Waiting,
+        };
+
+    public:
 
         // -=(Undocumented)=-
-        template<typename Function>
-        void Query(Ref<const Rectf> Area, Function Executor)
-        {
-            mPartitioner.template Query<Function>(Area, Executor);
-        }
+        Gateway(Ref<Subsystem::Context> Context);
+
+        // \see Activity::OnAttach
+        void OnAttach() override;
+
+        // \see Activity::OnDetach
+        void OnDetach() override;
+
+        // \see Activity::OnResume
+        void OnResume() override;
+
+    private:
+
+        // \see Protocol::OnConnect
+        void OnConnect(ConstSPtr<Network::Client> Session) override;
+
+        // \see Protocol::OnDisconnect
+        void OnDisconnect(ConstSPtr<Network::Client> Session) override;
+
+        // \see Protocol::OnRead
+        void OnRead(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override;
 
     private:
 
         // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Actor);
+        void OnAccountLogin(CStr Username, CStr Password);
 
         // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Actor);
+        void OnAccountCreate(CStr Username, CStr Password, CStr Email);
 
         // -=(Undocumented)=-
-        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Actor);
-
-        // -=(Undocumented)=-
-        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Actor);
+        void OnMessage(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message);
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Partitioner                 mPartitioner;
-        Ref<Animator>               mAnimator;
-        Table<UInt32, SPtr<Entity>> mDatabase;
+        State mState;
+        SStr  mUsername;
+        SStr  mPassword;
+        SStr  mEmail;
     };
 }

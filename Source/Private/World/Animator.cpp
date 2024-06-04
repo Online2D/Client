@@ -10,52 +10,57 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Director.hpp"
+#include "Animator.hpp"
+#include <Content/Service.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Director::Director()
-        : mZoom { 1.0f }
+    Bool Animator::Initialize(Ref<Subsystem::Context> Context)
     {
+        return LoadAnimations(Context);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Bool Director::Compute(Real64 Delta)
+    Bool Animator::LoadAnimations(Ref<Subsystem::Context> Context)
     {
-        if (mTranslation.HasStarted())
+        ConstSPtr<Content::Service> Service = Context.GetSubsystem<Content::Service>();
+
+        if (const Chunk File = Service->Find(Content::Uri(kAnimationFilename)); File.HasData())
         {
-            mCamera.SetPosition(mTranslation.Tick(Delta));
-        }
+            Reader Input(File.GetSpan<UInt08>());
 
-        if (mMagnitude.HasStarted())
+            mAnimations.resize(Input.ReadInt<UInt32>());
+
+            while (Input.GetAvailable() > 0)
+            {
+                const UInt32 ID = Input.ReadInt<UInt32>();
+
+                Ref<Animation> Animation = mAnimations[ID];
+                Animation.ID       = ID;
+                Animation.File     = Input.ReadInt<UInt32>();
+                Animation.Width    = Input.ReadInt<UInt16>();
+                Animation.Height   = Input.ReadInt<UInt16>();
+                Animation.Duration = Input.ReadReal32();
+
+                for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
+                {
+                    Animation.Frames.emplace_back(Input.Read<Rectf>());
+                }
+            }
+        }
+        else
         {
-            mZoom = mMagnitude.Tick(Delta);
-            SetViewport(mSize);
+            return false;
         }
-
-        const Bool Dirty = mCamera.Compute();
-
-        if (Dirty)
-        {
-            Ref<const Vector3f> Position = mCamera.GetPosition();
-
-            const Real32 HalfWidth  = (mSize.GetX() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
-            const Real32 HalfHeight = (mSize.GetY() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
-
-            mBoundaries.Set(
-                Position.GetX() - HalfWidth, Position.GetY() - HalfHeight,
-                Position.GetX() + HalfWidth, Position.GetY() + HalfHeight);
-            mBoundaries /= Tile::kDimension;
-        }
-        return Dirty;
+        return true;
     }
 }

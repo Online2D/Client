@@ -17,7 +17,7 @@
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -145,9 +145,9 @@ namespace Game
 
                 const SStr Filename = Format("Resources://World/{}-{}.region", RegionX, RegionY);
 
-                if (ConstSPtr<Region> Region = mResources->Load<Game::Region>(Content::Uri(Filename)))
+                if (ConstSPtr<Region> Chunk = mResources->Load<Region>(Content::Uri(Filename)))
                 {
-                    mTerrain.emplace_back(Recti(MinLocalX, MinLocalY, MaxLocalX, MaxLocalY), Region);
+                    mTerrain.emplace_back(Recti(MinLocalX, MinLocalY, MaxLocalX, MaxLocalY), Chunk);
                 }
 
                 MinLocalX = 0;
@@ -208,8 +208,8 @@ namespace Game
         {
             case Entity::Type::Object:
             {
-                Ref<Object> Object = static_cast<Ref<Game::Object>>(Actor);
-                DrawSprite(Object.GetDrawable(), Object.GetPosition(), 2.0f, Drawable::Order::Middle);
+                Ref<Object> Entity = static_cast<Ref<Object>>(Actor);
+                DrawSprite(Entity.GetDrawable(), Entity.GetPosition(), 2.0f, Drawable::Order::Middle);
             }
             break;
         case Entity::Type::Character:

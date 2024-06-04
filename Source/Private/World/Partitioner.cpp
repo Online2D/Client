@@ -10,57 +10,57 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Animator.hpp"
-#include <Content/Service.hpp>
+#include "Partitioner.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Bool Animator::Initialize(Ref<Subsystem::Context> Context)
+    void Partitioner::Insert(ConstSPtr<Entity> Actor)
     {
-        return LoadAnimations(Context);
+        const Rectf Boundaries = Drawable::GetBoundaries(
+            Drawable::Pivot::BottomCenter, Actor->GetPosition(), Actor->GetSize()) / kDimension;
+
+        for (UInt32 CellY = Boundaries.GetTop(); CellY <= Boundaries.GetBottom(); ++CellY)
+        {
+            for (UInt32 CellX = Boundaries.GetLeft(); CellX <= Boundaries.GetRight(); ++CellX)
+            {
+                Ref<Cell> Cell = mCells[GetCell(CellX, CellY)];
+                Cell.emplace_back(Actor);
+            }
+        }
+        mBoundaries.try_emplace(Actor->GetID(), Boundaries);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Bool Animator::LoadAnimations(Ref<Subsystem::Context> Context)
+    void Partitioner::Update(ConstSPtr<Entity> Actor)
     {
-        ConstSPtr<Content::Service> Service = Context.GetSubsystem<Content::Service>();
+        Remove(Actor);
+        Insert(Actor);
+    }
 
-        if (const Chunk File = Service->Find(Content::Uri(kAnimationFilename)); File.HasData())
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Partitioner::Remove(ConstSPtr<Entity> Actor)
+    {
+        Ref<const Rectf> Boundaries = mBoundaries[Actor->GetID()];
+
+        for (UInt32 CellY = Boundaries.GetTop(); CellY <= Boundaries.GetBottom(); ++CellY)
         {
-            Reader Input(File.GetSpan<UInt08>());
-
-            mAnimations.resize(Input.ReadInt<UInt32>());
-
-            while (Input.GetAvailable() > 0)
+            for (UInt32 CellX = Boundaries.GetLeft(); CellX <= Boundaries.GetRight(); ++CellX)
             {
-                const UInt32 ID = Input.ReadInt<UInt32>();
-
-                Ref<Animation> Animation = mAnimations[ID];
-                Animation.ID       = ID;
-                Animation.File     = Input.ReadInt<UInt32>();
-                Animation.Width    = Input.ReadInt<UInt16>();
-                Animation.Height   = Input.ReadInt<UInt16>();
-                Animation.Duration = Input.ReadReal32();
-
-                for (UInt32 Element = Input.ReadInt<UInt32>(); Element > 0; --Element)
-                {
-                    Animation.Frames.emplace_back(Input.Read<Rectf>());
-                }
+                Ref<Cell> Cell = mCells[GetCell(CellX, CellY)];
+                Cell.erase(std::remove(Cell.begin(), Cell.end(), Actor));
             }
         }
-        else
-        {
-            return false;
-        }
-        return true;
+        mBoundaries.erase(Actor->GetID());
     }
 }

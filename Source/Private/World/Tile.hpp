@@ -12,97 +12,60 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Core/Core.hpp"
+#include "Drawable.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class Entity
+    class Tile final
     {
     public:
 
         // -=(Undocumented)=-
-        enum class Type
+        enum class Layer
         {
-            // -=(Undocumented)=-
-            Object,
-
-            // -=(Undocumented)=-
-            Character,
+            Floor,
+            Decal,
         };
 
         // -=(Undocumented)=-
-        enum class Owner
+        enum class Property
         {
             // -=(Undocumented)=-
-            Local,
-
-            // -=(Undocumented)=-
-            Remote,
-
-            // -=(Undocumented)=-
-            Mutual,
+            Block  = 0b00000001,
         };
+
+        // -=(Undocumented)=-
+        static constexpr SInt32 kDimension = 32;
 
     public:
 
         // -=(Undocumented)=-
-        Entity(UInt32 ID, Type Type, Ref<const Vector2f> Position);
-
-        // -=(Undocumented)=-
-        virtual ~Entity() = default;
-
-        // -=(Undocumented)=-
-        UInt32 GetID() const
+        void SetProperty(Property Mask)
         {
-            return mID;
+            mProperties |= CastEnum(Mask);
         }
 
         // -=(Undocumented)=-
-        Type GetType() const
+        void UnsetProperty(Property Mask)
         {
-            return mType;
+            mProperties &= ~CastEnum(Mask);
         }
 
         // -=(Undocumented)=-
-        void SetPosition(Ref<const Vector2f> Position)
+        Bool HasProperty(Property Mask) const
         {
-            mPosition = Position;
+            return mProperties & CastEnum(Mask);
         }
 
         // -=(Undocumented)=-
-        Ref<const Vector2f> GetPosition() const
+        Ref<Drawable> GetLayer(Layer Type)
         {
-            return mPosition;
-        }
-
-        // -=(Undocumented)=-
-        void SetSize(Ref<const Vector2f> Size)
-        {
-            mSize = Size;
-        }
-
-        // -=(Undocumented)=-
-        Ref<const Vector2f> GetSize() const
-        {
-            return mSize;
-        }
-
-    public:
-
-        // -=(Undocumented)=-
-        static constexpr UInt32 CalculateID(UInt32 Identifier, Owner Owner)
-        {
-            constexpr UInt32 OwnerBits      = 2;
-            constexpr UInt32 OwnerMask      = GetMask<UInt32>(OwnerBits);
-            constexpr UInt32 IdentifierBits = 30;
-            constexpr UInt32 IdentifierMask = GetMask<UInt32>(IdentifierBits);
-
-            return (CastEnum(Owner) & OwnerMask) << (IdentifierBits) | (Identifier & IdentifierMask);
+            return mLayers[CastEnum(Type)];
         }
 
     private:
@@ -110,9 +73,7 @@ namespace Game
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        UInt32   mID;
-        Type     mType;
-        Vector2f mPosition;
-        Vector2f mSize;
+        UInt08             mProperties;
+        Array<Drawable, 2> mLayers;
     };
 }

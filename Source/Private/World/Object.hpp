@@ -12,52 +12,75 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Animation.hpp"
+#include "Entity.hpp"
+#include "Drawable.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class Animator final
+    class Object : public Entity
     {
     public:
 
         // -=(Undocumented)=-
-        static constexpr CStr kAnimationFilename = "Resources://Data/Animations.bin";
-
-    public:
+        Object(UInt32 ID, Ref<const Vector2f> Position);
 
         // -=(Undocumented)=-
-        Bool Initialize(Ref<Subsystem::Context> Context);
-
-        // -=(Undocumented)=-
-        void SetAnimation(Ref<const Animation> Animation)
+        void SetColor(Ref<const Color> Tint)
         {
-            if (mAnimations.capacity() > Animation.ID)
+            mDrawable.SetColor(Tint);
+        }
+
+        // -=(Undocumented)=-
+        Ref<const Color> GetColor() const
+        {
+            return mDrawable.GetColor();
+        }
+
+        // -=(Undocumented)=-
+        void SetRotation(Real32 Rotation)
+        {
+            mDrawable.SetRotation(Rotation);
+        }
+
+        // -=(Undocumented)=-
+        Real32 GetRotation() const
+        {
+            return mDrawable.GetRotation();
+        }
+
+        // -=(Undocumented)=-
+        void SetDrawable(Ptr<const Animation> Animation)
+        {
+            mDrawable.SetAnimation(Animation);
+            mDrawable.SetState(Drawable::State::Repeat);
+            mDrawable.SetOrigin(Drawable::Pivot::BottomCenter);
+
+            if (Animation)
             {
-                mAnimations[Animation.ID] = Animation;
+                SetSize(Vector2f(Animation->Width, Animation->Height));
+            }
+            else
+            {
+                SetSize(Vector2f(0.0f, 0.0f));
             }
         }
 
         // -=(Undocumented)=-
-        Ptr<const Animation> GetAnimation(UInt32 ID) const
+        Ref<Drawable> GetDrawable()
         {
-            return (ID < mAnimations.size() ? & mAnimations[ID] : nullptr);
+            return mDrawable;
         }
 
     private:
 
-        // -=(Undocumented)=-
-        Bool LoadAnimations(Ref<Subsystem::Context> Context);
-
-    private:
-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Vector<Animation> mAnimations;
+        Drawable mDrawable;
     };
 }

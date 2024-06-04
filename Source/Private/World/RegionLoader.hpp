@@ -12,75 +12,46 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Entity.hpp"
-#include "Drawable.hpp"
+#include "Animator.hpp"
+#include "Entities.hpp"
+#include "Region.hpp"
+#include <Content/Loader.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class Object : public Entity
+    class RegionLoader final : public Content::AbstractLoader<RegionLoader, Region>
     {
     public:
 
         // -=(Undocumented)=-
-        Object(UInt32 ID, Ref<const Vector2f> Position);
+        RegionLoader(Ref<Animator> Animator, Ref<Entities> Entities);
 
-        // -=(Undocumented)=-
-        void SetColor(Ref<const Color> Tint)
+        // \see Loader::GetExtensions
+        List<CStr> GetExtensions() const override
         {
-            mDrawable.SetColor(Tint);
+            static List<CStr> EXTENSION_LIST = { "region" };
+            return EXTENSION_LIST;
         }
 
-        // -=(Undocumented)=-
-        Ref<const Color> GetColor() const
-        {
-            return mDrawable.GetColor();
-        }
+        // \see AbstractLoader::Load
+        Bool Load(ConstSPtr<class Content::Service> Service, Ref<Chunk> Data, ConstSPtr<Region> Asset);
+
+    private:
 
         // -=(Undocumented)=-
-        void SetRotation(Real32 Rotation)
-        {
-            mDrawable.SetRotation(Rotation);
-        }
-
-        // -=(Undocumented)=-
-        Real32 GetRotation() const
-        {
-            return mDrawable.GetRotation();
-        }
-
-        // -=(Undocumented)=-
-        void SetDrawable(Ptr<const Animation> Animation)
-        {
-            mDrawable.SetAnimation(Animation);
-            mDrawable.SetState(Drawable::State::Repeat);
-            mDrawable.SetOrigin(Game::Drawable::Pivot::BottomCenter);
-
-            if (Animation)
-            {
-                SetSize(Vector2f(Animation->Width, Animation->Height));
-            }
-            else
-            {
-                SetSize(Vector2f(0.0f, 0.0f));
-            }
-        }
-
-        // -=(Undocumented)=-
-        Ref<Drawable> GetDrawable()
-        {
-            return mDrawable;
-        }
+        void ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type);
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Drawable mDrawable;
+        Ref<Animator> mAnimator;
+        Ref<Entities> mEntities;
     };
 }

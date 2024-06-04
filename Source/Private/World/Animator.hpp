@@ -12,44 +12,52 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Core/Core.hpp"
+#include "Animation.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class Collider final
+    class Animator final
     {
     public:
 
         // -=(Undocumented)=-
-        static constexpr UInt32 kMaxPoints = 16;
+        static constexpr CStr kAnimationFilename = "Resources://Data/Animations.bin";
 
     public:
 
         // -=(Undocumented)=-
-        void Add(Ref<const Vector2f> Point)
+        Bool Initialize(Ref<Subsystem::Context> Context);
+
+        // -=(Undocumented)=-
+        void SetAnimation(Ref<const Animation> Animation)
         {
-            mPoints.emplace_back(Point);
+            if (mAnimations.capacity() > Animation.ID)
+            {
+                mAnimations[Animation.ID] = Animation;
+            }
         }
 
         // -=(Undocumented)=-
-        void Clear()
+        Ptr<const Animation> GetAnimation(UInt32 ID) const
         {
-            mPoints.clear();
+            return (ID < mAnimations.size() ? & mAnimations[ID] : nullptr);
         }
 
+    private:
+
         // -=(Undocumented)=-
-        Bool Collides(Ref<const Collider> Instigator) const;
+        Bool LoadAnimations(Ref<Subsystem::Context> Context);
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Stack<Vector2f, kMaxPoints> mPoints;
+        Vector<Animation> mAnimations;
     };
 }

@@ -20,7 +20,7 @@
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
     class Partitioner final
@@ -57,7 +57,7 @@ namespace Game
                         for (ConstSPtr<Entity> Actor : Iterator->second)
                         {
                             const Rectf Collision = Drawable::GetBoundaries(
-                                Game::Drawable::Pivot::BottomCenter, Actor->GetPosition(), Actor->GetSize());
+                                Drawable::Pivot::BottomCenter, Actor->GetPosition(), Actor->GetSize());
 
                             if (Collision.Intersects(Area))
                             {

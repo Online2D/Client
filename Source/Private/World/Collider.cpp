@@ -10,28 +10,45 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Region.hpp"
+#include "Collider.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Region::Region(Ref<const Content::Uri> Key)
-        : AbstractResource(Key)
+    Bool Collider::Collides(Ref<const Collider> Instigator) const
     {
-    }
+        // Calculate Minkowski Difference
+        Stack<Vector2f, kMaxPoints * kMaxPoints> MinkowskiDifference;
+        for (Ref<const Vector2f> Point1 : mPoints)
+        {
+            for (Ref<const Vector2f> Point2 : Instigator.mPoints)
+            {
+                MinkowskiDifference.push_back(Point1 - Point2);
+            }
+        }
 
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // Check if origin is inside Minkowski Difference
+        for (UInt32 Element = 0; Element < MinkowskiDifference.size(); ++Element)
+        {
+            Ref<const Vector2f> P0 = MinkowskiDifference[Element];
+            Ref<const Vector2f> P1 = MinkowskiDifference[(Element + 1) % MinkowskiDifference.size()];
 
-    Bool Region::OnCreate(Ref<Subsystem::Context> Context)
-    {
-        SetMemory(sizeof(Tile) * kTilesPerRegion);
-        return true;
+            // Check if the origin lies between two consecutive points
+            if ((P0.GetY() <= 0 && P1.GetY() > 0) || (P1.GetY() <= 0 && P0.GetY() > 0))
+            {
+                const Real32 Intersection = P0.GetX() - P0.GetY() * (P1.GetX() - P0.GetX()) / (P1.GetY() - P0.GetY());
+                if (Intersection > 0)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

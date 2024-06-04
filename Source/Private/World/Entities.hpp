@@ -12,68 +12,76 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Drawable.hpp"
+#include "Animator.hpp"
+#include "Partitioner.hpp"
+#include "Object.hpp"
+#include "Character.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class Tile final
+    // @TODO: Entity Component (Not ECS shit) DOD system.
+    class Entities final
     {
     public:
 
         // -=(Undocumented)=-
-        enum class Layer
-        {
-            Floor,
-            Decal,
-        };
+        Entities(Ref<Animator> Animator);
 
         // -=(Undocumented)=-
-        enum class Property
-        {
-            // -=(Undocumented)=-
-            Block  = 0b00000001,
-        };
+        SPtr<Entity> Load(Ref<Reader> Reader);
 
         // -=(Undocumented)=-
-        static constexpr SInt32 kDimension = 32;
-
-    public:
+        void Save(Ref<Writer> Writer, ConstSPtr<Entity> Actor);
 
         // -=(Undocumented)=-
-        void SetProperty(Property Mask)
+        SPtr<Entity> Create(UInt32 ID, Entity::Type Type, Ref<const Vector2f> Position);
+
+        // -=(Undocumented)=-
+        void Update(ConstSPtr<Entity> Actor);
+
+        // -=(Undocumented)=-
+        void Remove(ConstSPtr<Entity> Actor);
+
+        // -=(Undocumented)=-
+        SPtr<Entity> Find(UInt32 ID)
         {
-            mProperties |= CastEnum(Mask);
+            const auto Iterator = mDatabase.find(ID);
+            return (Iterator != mDatabase.end() ? Iterator->second : nullptr);
         }
 
         // -=(Undocumented)=-
-        void UnsetProperty(Property Mask)
+        template<typename Function>
+        void Query(Ref<const Rectf> Area, Function Executor)
         {
-            mProperties &= ~CastEnum(Mask);
+            mPartitioner.template Query<Function>(Area, Executor);
         }
 
-        // -=(Undocumented)=-
-        Bool HasProperty(Property Mask) const
-        {
-            return mProperties & CastEnum(Mask);
-        }
+    private:
 
         // -=(Undocumented)=-
-        Ref<Drawable> GetLayer(Layer Type)
-        {
-            return mLayers[CastEnum(Type)];
-        }
+        void OnDecode(Ref<Reader> Reader, ConstSPtr<Object> Actor);
+
+        // -=(Undocumented)=-
+        void OnEncode(Ref<Writer> Writer, ConstSPtr<Object> Actor);
+
+        // -=(Undocumented)=-
+        void OnDecode(Ref<Reader> Reader, ConstSPtr<Character> Actor);
+
+        // -=(Undocumented)=-
+        void OnEncode(Ref<Writer> Writer, ConstSPtr<Character> Actor);
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        UInt08             mProperties;
-        Array<Drawable, 2> mLayers;
+        Partitioner                 mPartitioner;
+        Ref<Animator>               mAnimator;
+        Table<UInt32, SPtr<Entity>> mDatabase;
     };
 }

@@ -12,46 +12,44 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Animator.hpp"
-#include "Entities.hpp"
-#include "Region.hpp"
-#include <Content/Loader.hpp>
+#include "Core/Core.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=(Undocumented)=-
-    class RegionLoader final : public Content::AbstractLoader<RegionLoader, Region>
+    class Collider final
     {
     public:
 
         // -=(Undocumented)=-
-        RegionLoader(Ref<Animator> Animator, Ref<Entities> Entities);
+        static constexpr UInt32 kMaxPoints = 16;
 
-        // \see Loader::GetExtensions
-        List<CStr> GetExtensions() const override
-        {
-            static List<CStr> EXTENSION_LIST = { "region" };
-            return EXTENSION_LIST;
-        }
-
-        // \see AbstractLoader::Load
-        Bool Load(ConstSPtr<class Content::Service> Service, Ref<Chunk> Data, ConstSPtr<Region> Asset);
-
-    private:
+    public:
 
         // -=(Undocumented)=-
-        void ReadLayer(Ref<Reader> Input, Ref<Tile> Tile, Tile::Layer Type);
+        void Add(Ref<const Vector2f> Point)
+        {
+            mPoints.emplace_back(Point);
+        }
+
+        // -=(Undocumented)=-
+        void Clear()
+        {
+            mPoints.clear();
+        }
+
+        // -=(Undocumented)=-
+        Bool Collides(Ref<const Collider> Instigator) const;
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Ref<Animator> mAnimator;
-        Ref<Entities> mEntities;
+        Stack<Vector2f, kMaxPoints> mPoints;
     };
 }

@@ -10,45 +10,52 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Collider.hpp"
+#include "Director.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace World
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Bool Collider::Collides(Ref<const Collider> Instigator) const
+    Director::Director()
+        : mZoom { 1.0f }
     {
-        // Calculate Minkowski Difference
-        Stack<Vector2f, kMaxPoints * kMaxPoints> MinkowskiDifference;
-        for (Ref<const Vector2f> Point1 : mPoints)
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    Bool Director::Compute(Real64 Delta)
+    {
+        if (mTranslation.HasStarted())
         {
-            for (Ref<const Vector2f> Point2 : Instigator.mPoints)
-            {
-                MinkowskiDifference.push_back(Point1 - Point2);
-            }
+            mCamera.SetPosition(mTranslation.Tick(Delta));
         }
 
-        // Check if origin is inside Minkowski Difference
-        for (UInt32 Element = 0; Element < MinkowskiDifference.size(); ++Element)
+        if (mMagnitude.HasStarted())
         {
-            Ref<const Vector2f> P0 = MinkowskiDifference[Element];
-            Ref<const Vector2f> P1 = MinkowskiDifference[(Element + 1) % MinkowskiDifference.size()];
-
-            // Check if the origin lies between two consecutive points
-            if ((P0.GetY() <= 0 && P1.GetY() > 0) || (P1.GetY() <= 0 && P0.GetY() > 0))
-            {
-                const Real32 Intersection = P0.GetX() - P0.GetY() * (P1.GetX() - P0.GetX()) / (P1.GetY() - P0.GetY());
-                if (Intersection > 0)
-                {
-                    return true;
-                }
-            }
+            mZoom = mMagnitude.Tick(Delta);
+            SetViewport(mSize);
         }
-        return false;
+
+        const Bool Dirty = mCamera.Compute();
+
+        if (Dirty)
+        {
+            Ref<const Vector3f> Position = mCamera.GetPosition();
+
+            const Real32 HalfWidth  = (mSize.GetX() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
+            const Real32 HalfHeight = (mSize.GetY() * 0.5f * mZoom) + (kExpansion * Tile::kDimension);
+
+            mBoundaries.Set(
+                Position.GetX() - HalfWidth, Position.GetY() - HalfHeight,
+                Position.GetX() + HalfWidth, Position.GetY() + HalfHeight);
+            mBoundaries /= Tile::kDimension;
+        }
+        return Dirty;
     }
 }
