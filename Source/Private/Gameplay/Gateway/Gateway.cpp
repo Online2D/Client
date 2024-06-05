@@ -79,9 +79,8 @@ namespace Gameplay
         mUsername = Username;
         mPassword = Password;
 
-        SPtr<Network::Client> Session
-            = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
-        Session->SetProtocol(shared_from_this());
+        mConnection = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
+        mConnection->SetProtocol(shared_from_this());
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -99,9 +98,8 @@ namespace Gameplay
         mPassword = Password;
         mEmail    = Email;
 
-        SPtr<Network::Client> Session
-            = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
-        Session->SetProtocol(shared_from_this());
+        mConnection = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
+        mConnection->SetProtocol(shared_from_this());
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

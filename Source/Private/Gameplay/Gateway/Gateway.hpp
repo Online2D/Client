@@ -84,9 +84,10 @@ namespace Gameplay
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        State mState;
-        SStr  mUsername;
-        SStr  mPassword;
-        SStr  mEmail;
+        SPtr<Network::Client> mConnection;
+        State                 mState;
+        SStr                  mUsername;
+        SStr                  mPassword;
+        SStr                  mEmail;
     };
 }
