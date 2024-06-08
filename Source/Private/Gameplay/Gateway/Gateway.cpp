@@ -182,6 +182,9 @@ namespace Gameplay
         case GatewayAccountError::ID::Exist:
             Browser->Call("showAccountCreateError", "error_account_exist");
             break;
+        case GatewayAccountError::ID::Online:
+            Browser->Call("showAccountLoginError", "error_account_online");
+            break;
         }
     }
 }

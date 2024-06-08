@@ -30,6 +30,7 @@ namespace Gameplay
             Unknown,
             Mismatch,
             Exist,
+            Online,
         };
 
         ID Type;

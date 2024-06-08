@@ -95,10 +95,10 @@ namespace Game
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #ifdef    EA_PLATFORM_WINDOWS
-    #include <windows.h>
+    #include <Windows.h>
 #endif // EA_PLATFORM_WINDOWS
 
-int main(int Argc, Ptr<Char> Argv[])
+int main([[maybe_unused]] int Argc, [[maybe_unused]] Ptr<Char> Argv[])
 {
 #ifdef    EA_PLATFORM_WINDOWS
     ::CoInitialize(nullptr);
