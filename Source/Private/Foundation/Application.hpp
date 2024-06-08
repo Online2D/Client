@@ -12,50 +12,35 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "GatewayPackets.hpp"
-#include <Engine/Kernel.hpp>
+#include <Engine/Host.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Gameplay
+namespace Foundation
 {
     // -=(Undocumented)=-
-    class Gateway final : public EnableSmartPointer<Gateway>, public Engine::Activity, public Network::Protocol
+    class Application final : public EnableSmartPointer<Application>, public Engine::Host, public Network::Protocol
     {
     public:
 
         // -=(Undocumented)=-
-        static constexpr CStr kRemoteAddress = "127.0.0.1";
+        Application(Ref<Engine::Kernel> Kernel);
 
         // -=(Undocumented)=-
-        static constexpr UInt kRemotePort    = 7666;
+        void Connect(CStr Address, UInt32 Port);
 
-    public:
+    private:
 
-        // -=(Undocumented)=-
-        enum class State
-        {
-            Idle,
-            Authenticate,
-            Create,
-            Waiting,
-        };
+        // \see Host::OnStart
+        void OnStart() override;
 
-    public:
+        // \see Host::OnStop
+        void OnStop() override;
 
-        // -=(Undocumented)=-
-        Gateway(Ref<Subsystem::Context> Context);
-
-        // \see Activity::OnAttach
-        void OnAttach() override;
-
-        // \see Activity::OnDetach
-        void OnDetach() override;
-
-        // \see Activity::OnResume
-        void OnResume() override;
+        // \see Host::OnTick
+        void OnTick(Real64 Time) override;
 
     private:
 
@@ -66,28 +51,13 @@ namespace Gameplay
         void OnDisconnect(ConstSPtr<Network::Client> Session) override;
 
         // \see Protocol::OnRead
-        void OnRead(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes) override;
-
-    private:
-
-        // -=(Undocumented)=-
-        void OnAccountLogin(CStr Username, CStr Password);
-
-        // -=(Undocumented)=-
-        void OnAccountCreate(CStr Username, CStr Password, CStr Email);
-
-        // -=(Undocumented)=-
-        void OnMessage(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message);
+        void OnRead(ConstSPtr<Network::Client> Session, CPtr<UInt08> Bytes) override;
 
     private:
 
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        SPtr<Network::Client> mConnection;
-        State                 mState;
-        SStr                  mUsername;
-        SStr                  mPassword;
-        SStr                  mEmail;
+        SPtr<Network::Client> mSession;
     };
 }

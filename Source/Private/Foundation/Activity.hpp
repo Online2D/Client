@@ -12,35 +12,44 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include <Engine/Host.hpp>
+#include "Application.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace Foundation
 {
     // -=(Undocumented)=-
-    class Client final : public Engine::Host
+    class Activity : public Engine::Activity
     {
     public:
 
         // -=(Undocumented)=-
-        Client(Ref<Engine::Kernel> Kernel);
+        Activity(Ref<Subsystem::Context> Context, Ref<Application> Application);
 
         // -=(Undocumented)=-
-        void OnStart() override;
+        virtual void OnConnect(SPtr<Network::Client> Session);
 
         // -=(Undocumented)=-
-        void OnStop() override;
+        virtual void OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive);
 
         // -=(Undocumented)=-
-        void OnPreTick() override;
+        virtual void OnDisconnect(SPtr<Network::Client> Session);
+
+    protected:
 
         // -=(Undocumented)=-
-        void OnTick(Real64 Time) override;
+        Ref<Application> GetApplication()
+        {
+            return mApplication;
+        }
 
-        // -=(Undocumented)=-
-        void OnPostTick() override;
+    private:
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        Ref<Application> mApplication;
     };
 }

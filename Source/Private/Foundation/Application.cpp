@@ -10,20 +10,20 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Client.hpp"
-#include "Gameplay/Gateway/Gateway.hpp"
+#include "Application.hpp"
+#include "Gateway/Gateway.hpp"
 #include <Content/Locator/SystemLocator.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Game
+namespace Foundation
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Client::Client(Ref<Engine::Kernel> Kernel)
+    Application::Application(Ref<Engine::Kernel> Kernel)
         : Host(Kernel)
     {
     }
@@ -31,7 +31,7 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Client::OnStart()
+    void Application::OnStart()
     {
         constexpr static CStr kFolder = "C:\\Program Files\\Argentum\\Data"; // @TESTING
 
@@ -47,14 +47,14 @@ namespace Game
             return UI::Value();
         });
 
-        // Initialize initial activity
-        GetKernel().Goto(NewPtr<Gameplay::Gateway>(GetKernel()));
+        // Initialize initial activity (Gateway)
+        GetKernel().Goto(NewPtr<Gateway>(GetKernel(), * this));
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Client::OnStop()
+    void Application::OnStop()
     {
 
     }
@@ -62,31 +62,60 @@ namespace Game
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Client::OnPreTick()
-    {
-
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Client::OnTick(Real64 Time)
+    void Application::OnTick(Real64 Time)
     {
         const Rectf Viewport(
             Vector2f(0.0f, 0.0f), GetKernel().GetSubsystem<Platform::Service>()->GetWindow()->GetSize());
 
         ConstSPtr<Graphic::Service> Graphics = GetKernel().GetSubsystem<Graphic::Service>();
         Graphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
-            GetKernel().GetSubsystem<UI::Service>()->Present();
+        GetKernel().GetSubsystem<UI::Service>()->Present();
         Graphics->Commit(Graphic::k_Default, false);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Client::OnPostTick()
+    void Application::Connect(CStr Address, UInt32 Port)
     {
+        mSession = GetKernel().GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
+    }
 
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Application::OnConnect(ConstSPtr<Network::Client> Session)
+    {
+        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        if (Foreground)
+        {
+            Foreground->OnConnect(Session);
+        }
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Application::OnDisconnect(ConstSPtr<Network::Client> Session)
+    {
+        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        if (Foreground)
+        {
+            Foreground->OnDisconnect(Session);
+        }
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Application::OnRead(ConstSPtr<Network::Client> Session, CPtr<UInt08> Bytes)
+    {
+        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        if (Foreground)
+        {
+            Reader Archive(Bytes);
+            Foreground->OnMessage(Session, Archive);
+        }
     }
 }
 
@@ -110,11 +139,9 @@ int main([[maybe_unused]] int Argc, [[maybe_unused]] Ptr<Char> Argv[])
     Properties.SetWindowHeight(768);
     Properties.SetWindowMode(false, false);
 
-    // Initialise Aurora
+    // Initialize 'Aurora Engine' and enter main loop
     Engine::Kernel Kernel;
-    Kernel.Initialize(decltype(Kernel)::Mode::Client, Properties, NewPtr<Game::Client>(Kernel));
-
-    // Run Aurora
+    Kernel.Initialize(decltype(Kernel)::Mode::Client, Properties, NewPtr<Foundation::Application>(Kernel));
     Kernel.Run();
 
     return 0;

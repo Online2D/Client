@@ -16,13 +16,13 @@
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Gameplay
+namespace Foundation
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Gateway::Gateway(Ref<Subsystem::Context> Context)
-        : Activity(Context)
+    Gateway::Gateway(Ref<Subsystem::Context> Context, Ref<Application> Application)
+        : Activity(Context, Application)
     {
         mState = State::Idle;
     }
@@ -68,44 +68,7 @@ namespace Gameplay
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnAccountLogin(CStr Username, CStr Password)
-    {
-        if (mState != State::Idle)
-        {
-            return;
-        }
-
-        mState    = State::Authenticate;
-        mUsername = Username;
-        mPassword = Password;
-
-        mConnection = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
-        mConnection->SetProtocol(shared_from_this());
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Gateway::OnAccountCreate(CStr Username, CStr Password, CStr Email)
-    {
-        if (mState != State::Idle)
-        {
-            return;
-        }
-
-        mState    = State::Create;
-        mUsername = Username;
-        mPassword = Password;
-        mEmail    = Email;
-
-        mConnection = GetSubsystem<Network::Service>()->Connect(kRemoteAddress, kRemotePort);
-        mConnection->SetProtocol(shared_from_this());
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Gateway::OnConnect(ConstSPtr<Network::Client> Session)
+    void Gateway::OnConnect(SPtr<Network::Client> Session)
     {
         switch (mState)
         {
@@ -127,7 +90,24 @@ namespace Gameplay
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnDisconnect(ConstSPtr<Network::Client> Session)
+    void Gateway::OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive)
+    {
+        do
+        {
+            switch (Archive.ReadInt<UInt>())
+            {
+            case GatewayAccountError::kID:
+                OnAccountError(Session, GatewayAccountError(Archive));
+                break;
+            }
+        }
+        while (Archive.GetAvailable() > 0);
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Gateway::OnDisconnect(SPtr<Network::Client> Session)
     {
         ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
 
@@ -149,25 +129,42 @@ namespace Gameplay
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnRead(ConstSPtr<Network::Client> Client, CPtr<UInt08> Bytes)
+    void Gateway::OnAccountLogin(CStr Username, CStr Password)
     {
-        Reader Serializer(Bytes);
-        do
+        if (mState != State::Idle)
         {
-            switch (Serializer.ReadInt<UInt>())
-            {
-            case GatewayAccountError::k_ID:
-                OnMessage(Client, GatewayAccountError(Serializer));
-                break;
-            }
+            return;
         }
-        while (Serializer.GetAvailable() > 0);
+
+        mState    = State::Authenticate;
+        mUsername = Username;
+        mPassword = Password;
+
+        GetApplication().Connect(kRemoteAddress, kRemotePort);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnMessage(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message)
+    void Gateway::OnAccountCreate(CStr Username, CStr Password, CStr Email)
+    {
+        if (mState != State::Idle)
+        {
+            return;
+        }
+
+        mState    = State::Create;
+        mUsername = Username;
+        mPassword = Password;
+        mEmail    = Email;
+
+        GetApplication().Connect(kRemoteAddress, kRemotePort);
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Gateway::OnAccountError(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message)
     {
         ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
 
