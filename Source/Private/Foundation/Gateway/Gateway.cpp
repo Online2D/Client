@@ -11,6 +11,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Gateway.hpp"
+#include "Foundation/Lobby/Lobby.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -59,6 +60,14 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+    void Gateway::OnPause()
+    {
+        mState = State::Idle;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
     void Gateway::OnResume()
     {
         ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
@@ -98,6 +107,9 @@ namespace Foundation
             {
             case GatewayAccountError::kID:
                 OnAccountError(Session, GatewayAccountError(Archive));
+                break;
+            case GatewayAccountData::kID:
+                OnAccountAuthorized(Session, GatewayAccountData(Archive));
                 break;
             }
         }
@@ -183,5 +195,14 @@ namespace Foundation
             Browser->Call("showAccountLoginError", "error_account_online");
             break;
         }
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Gateway::OnAccountAuthorized(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountData> Message)
+    {
+        // @TODO Send message information to Lobby Activity
+        GetApplication().GetKernel().Goto(NewPtr<Lobby>(GetApplication()));
     }
 }

@@ -12,6 +12,7 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#include <Core/Core.hpp>
 #include <Network/Packet.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -158,9 +159,67 @@ namespace Foundation
     };
 
     // -=(Undocumented)=-
-    struct GatewayAccountList
-        : public Network::Packet<GatewayAccountList, 4>
+    struct GatewayAccountData
+        : public Network::Packet<GatewayAccountData, 4>
     {
-        // @TODO
+        // -=(Undocumented)=-
+        struct Entity
+        {
+            UInt ID;
+            SStr Name;
+            SStr Location;
+
+            // -=(Undocumented)=-
+            Entity() = default;
+
+            // -=(Undocumented)=-
+            Entity(UInt ID, CStr Name, CStr Location)
+                : ID       { ID },
+                  Name     { Name },
+                  Location { Location }
+            {
+            }
+
+            // -=(Undocumented)=-
+            static Entity Read(Ref<Reader> Archive)
+            {
+                const UInt ID       = Archive.ReadInt<UInt>();
+                const CStr Name     = Archive.ReadString8();
+                const CStr Location = Archive.ReadString8();
+                return Entity(ID, Name, Location);
+            }
+
+            // -=(Undocumented)=-
+            static void Write(Ref<Writer> Archive, Ref<const Entity> Entry)
+            {
+                Archive.WriteInt(Entry.ID);
+                Archive.WriteString8(Entry.Name);
+                Archive.WriteString8(Entry.Location);
+            }
+        };
+
+        Vector<Entity> Entities;
+
+        // -=(Undocumented)=-
+        GatewayAccountData() = default;
+
+        // -=(Undocumented)=-
+        GatewayAccountData(Ref<Reader> Archive)
+        {
+            OnSerialize(Stream<Reader>(Archive));
+        }
+
+        // -=(Undocumented)=-
+        void Add(Ref<const Entity> Entity)
+        {
+            Entities.emplace_back(Entity);
+        }
+
+        // -=(Undocumented)=-
+        template<typename Stream>
+        void OnSerialize(Stream Archive)
+        {
+            Archive.SerializeList(Entities);
+        }
     };
 }

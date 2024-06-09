@@ -31,6 +31,15 @@ namespace Foundation
         // -=(Undocumented)=-
         void Connect(CStr Address, UInt32 Port);
 
+        // -=(Undocumented)=-
+        void Disconnect();
+
+        // -=(Undocumented)=-
+        ConstSPtr<Network::Client> GetSession() const
+        {
+            return mSession;
+        }
+
     private:
 
         // \see Host::OnStart
