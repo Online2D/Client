@@ -21,8 +21,8 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Gateway::Gateway(Ref<Subsystem::Context> Context, Ref<Application> Application)
-        : Activity(Context, Application)
+    Gateway::Gateway(Ref<Application> Application)
+        : Activity(Application)
     {
         mState = State::Idle;
     }

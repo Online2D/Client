@@ -26,7 +26,7 @@ namespace Foundation
     public:
 
         // -=(Undocumented)=-
-        Activity(Ref<Subsystem::Context> Context, Ref<Application> Application);
+        Activity(Ref<Application> Application);
 
         // -=(Undocumented)=-
         virtual void OnConnect(SPtr<Network::Client> Session);

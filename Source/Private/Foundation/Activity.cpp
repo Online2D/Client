@@ -21,8 +21,8 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Activity::Activity(Ref<Subsystem::Context> Context, Ref<Application> Application)
-        : Engine::Activity(Context),
+    Activity::Activity(Ref<Application> Application)
+        : Engine::Activity(Application.GetKernel()),
           mApplication { Application }
     {
     }

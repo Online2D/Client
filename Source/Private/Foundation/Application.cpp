@@ -48,7 +48,7 @@ namespace Foundation
         });
 
         // Initialize initial activity (Gateway)
-        GetKernel().Goto(NewPtr<Gateway>(GetKernel(), * this));
+        GetKernel().Goto(NewPtr<Gateway>(* this));
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -46,7 +46,7 @@ namespace Foundation
     public:
 
         // -=(Undocumented)=-
-        Gateway(Ref<Subsystem::Context> Context, Ref<Application> Application);
+        Gateway(Ref<Application> Application);
 
         // \see Activity::OnAttach
         void OnAttach() override;
