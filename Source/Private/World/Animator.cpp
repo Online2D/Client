@@ -59,6 +59,7 @@ namespace World
         }
         else
         {
+            LOG_ERROR("Can't find animation file '{}'", kAnimationFilename);
             return false;
         }
         return true;

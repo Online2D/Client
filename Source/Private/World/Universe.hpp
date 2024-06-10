@@ -28,12 +28,12 @@
 namespace World
 {
     // -=(Undocumented)=-
-    class World final
+    class Universe final
     {
     public:
 
         // -=(Undocumented)=-
-        World();
+        Universe();
 
         // -=(Undocumented)=-
         void Initialize(Ref<Subsystem::Context> Context);
@@ -100,7 +100,6 @@ namespace World
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         SPtr<Content::Service>  mResources;
-        SPtr<Graphic::Service>  mGraphics;
         SPtr<Graphic::Renderer> mRenderer;
         SPtr<Graphic::Pipeline> mPipeline;
         SPtr<Graphic::Font>     mFont;

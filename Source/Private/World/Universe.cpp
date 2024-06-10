@@ -10,7 +10,7 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "World.hpp"
+#include "Universe.hpp"
 #include "RegionLoader.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -22,7 +22,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    World::World()
+    Universe::Universe()
         : mEntities { mAnimator }
     {
     }
@@ -30,14 +30,11 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::Initialize(Ref<Subsystem::Context> Context)
+    void Universe::Initialize(Ref<Subsystem::Context> Context)
     {
         // Initialize our custom loader(s)
         mResources = Context.GetSubsystem<Content::Service>();
         mResources->AddLoader(NewPtr<RegionLoader>(mAnimator, mEntities));
-
-        // Initialize our graphics service
-        mGraphics  = Context.GetSubsystem<Graphic::Service>();
 
         // Initialize animator
         mAnimator.Initialize(Context);
@@ -51,7 +48,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::Tick(Real64 Time)
+    void Universe::Tick(Real64 Time)
     {
         const Real64 Delta = Time - mTime;
         mTime = Time;
@@ -65,7 +62,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::OnUpdate(Real64 Delta)
+    void Universe::OnUpdate(Real64 Delta)
     {
         // Update the camera and recalculate visible chunk(s)
         const Bool Dirty = mDirector.Compute(Delta);
@@ -81,47 +78,40 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::OnRender(Real64 Delta)
+    void Universe::OnRender(Real64 Delta)
     {
-        Rectf Viewport(Vector2f(0.0f, 0.0f), mDirector.GetViewport());
-
-        // Apply default technique
-        mGraphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
+        // Draw Game (Entities, Particles, ...)
+        mRenderer->Begin(mDirector.GetMatrix(), Delta);
         {
-            // Draw Game
-            mRenderer->Begin(mDirector.GetMatrix(), Delta);
+            // @TODO: Draw Foreground
+
+            // Draw Middle (Entities)
+            mEntities.Query(mDirector.GetBoundaries() * Tile::kDimension, [this](Ref<Entity> Actor)
             {
-                // @TODO: Draw Foreground
+                DrawEntity(Actor);
+            });
+            mRenderer->Flush();
 
-                // Draw Middle (Entities)
-                mEntities.Query(mDirector.GetBoundaries() * Tile::kDimension, [this](Ref<Entity> Actor)
-                {
-                    DrawEntity(Actor);
-                });
-                mRenderer->Flush();
-
-                // Draw Background (Floor, Decal, ...)
-                for (Ref<const Chunk> Chunk : mTerrain)
-                {
-                    const UInt32 MinLocalX = Chunk.Dimension.GetLeft();
-                    const UInt32 MinLocalY = Chunk.Dimension.GetTop();
-                    const UInt32 MaxLocalX = Chunk.Dimension.GetRight();
-                    const UInt32 MaxLocalY = Chunk.Dimension.GetBottom();
-                    DrawTiles(* Chunk.Region, MinLocalX, MinLocalY, MaxLocalX, MaxLocalY);
-                }
+            // Draw Background (Floor, Decal, ...)
+            for (Ref<const Chunk> Chunk : mTerrain)
+            {
+                const UInt32 MinLocalX = Chunk.Dimension.GetLeft();
+                const UInt32 MinLocalY = Chunk.Dimension.GetTop();
+                const UInt32 MaxLocalX = Chunk.Dimension.GetRight();
+                const UInt32 MaxLocalY = Chunk.Dimension.GetBottom();
+                DrawTiles(* Chunk.Region, MinLocalX, MinLocalY, MaxLocalX, MaxLocalY);
             }
-            mRenderer->End();
-
-            // Draw Interface (UI)
-            DrawInterface(Delta);
         }
-        mGraphics->Commit(Graphic::k_Default, false);
+        mRenderer->End();
+
+        // Draw Overlay (Text)
+        DrawInterface(Delta);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::Compute(Ref<const Recti> Viewport)
+    void Universe::Compute(Ref<const Recti> Viewport)
     {
         const UInt32 RegionX1 = std::floorf(Viewport.GetLeft() / Region::kTilesPerRow);
         const UInt32 RegionY1 = std::floorf(Viewport.GetTop()  / Region::kTilesPerColumn);
@@ -160,7 +150,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawInterface(Real64 Delta)
+    void Universe::DrawInterface(Real64 Delta)
     {
         Graphic::Camera Camera;
         Camera.SetOrthographic(mDirector.GetViewport().GetX(), mDirector.GetViewport().GetY(), 0.0f, 1.0f);
@@ -182,7 +172,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawTiles(Ref<Region> Region, UInt32 MinX, UInt32 MinY, UInt32 MaxX, UInt32 MaxY)
+    void Universe::DrawTiles(Ref<Region> Region, UInt32 MinX, UInt32 MinY, UInt32 MaxX, UInt32 MaxY)
     {
         for (UInt TileY = MinY; TileY < MaxY; ++TileY)
         {
@@ -202,7 +192,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawEntity(Ref<Entity> Actor)
+    void Universe::DrawEntity(Ref<Entity> Actor)
     {
         switch (Actor.GetType())
         {
@@ -220,7 +210,7 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void World::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector2f> Position, Real32 Depth, Drawable::Order Order)
+    void Universe::DrawSprite(Ref<Drawable> Drawable, Ref<const Vector2f> Position, Real32 Depth, Drawable::Order Order)
     {
         Ptr<const Animation> Animation = Drawable.GetAnimation();
         if (Animation)
