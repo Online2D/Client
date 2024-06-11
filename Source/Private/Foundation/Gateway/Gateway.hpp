@@ -30,7 +30,7 @@ namespace Foundation
         static constexpr CStr kRemoteAddress = "127.0.0.1";
 
         // -=(Undocumented)=-
-        static constexpr UInt kRemotePort    = 7666;
+        static constexpr UInt kRemotePort    = 7667;
 
     public:
 

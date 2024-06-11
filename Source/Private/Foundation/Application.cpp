@@ -36,7 +36,6 @@ namespace Foundation
         if (mConnection)
         {
             mConnection->Close(false);
-            mConnection = nullptr;
         }
     }
 
@@ -170,16 +169,17 @@ namespace Foundation
 
     void Application::OnRead(ConstSPtr<Network::Client> Connection, CPtr<UInt08> Bytes)
     {
-        ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
-        if (Foreground)
+        Reader Archive(Bytes);
+
+        do
         {
-            Reader Archive(Bytes);
-            do
+            ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
+            if (Foreground)
             {
                 Foreground->OnMessage(Connection, Archive);
             }
-            while (Archive.GetAvailable() > 0);
         }
+        while (Archive.GetAvailable() > 0);
     }
 }
 
