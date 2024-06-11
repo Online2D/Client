@@ -12,7 +12,7 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include <Engine/Host.hpp>
+#include <Engine/Kernel.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -21,12 +21,15 @@
 namespace Foundation
 {
     // -=(Undocumented)=-
-    class Application final : public EnableSmartPointer<Application>, public Engine::Host, public Network::Protocol
+    class Application final : public EnableSmartPointer<Application>, public Engine::Kernel, public Network::Protocol
     {
     public:
 
         // -=(Undocumented)=-
-        Application(Ref<Engine::Kernel> Kernel);
+        void Goto(SPtr<class Activity> Foreground);
+
+        // -=(Undocumented)=-
+        void Back();
 
         // -=(Undocumented)=-
         void Connect(CStr Address, UInt32 Port);
@@ -34,24 +37,16 @@ namespace Foundation
         // -=(Undocumented)=-
         void Disconnect();
 
-        // -=(Undocumented)=-
-        ConstSPtr<Network::Client> GetSession() const
-        {
-            return mSession;
-        }
-
     private:
 
-        // \see Host::OnStart
-        void OnStart() override;
+        // \see Kernel::OnInitialize
+        Bool OnInitialize() override;
 
-        // \see Host::OnStop
-        void OnStop() override;
+        // \see Kernel::OnDestroy
+        void OnDestroy() override;
 
-        // \see Host::OnTick
+        // \see Kernel::OnTick
         void OnTick(Real64 Time) override;
-
-    private:
 
         // \see Protocol::OnConnect
         void OnConnect(ConstSPtr<Network::Client> Session) override;
@@ -67,6 +62,11 @@ namespace Foundation
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        SPtr<Network::Client> mSession;
+        Vector<SPtr<class Activity>> mActivities;
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        SPtr<Network::Client>        mSession;
     };
 }

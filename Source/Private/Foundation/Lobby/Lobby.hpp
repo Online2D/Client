@@ -47,10 +47,10 @@ namespace Foundation
         void OnResume() override;
 
         // \see Activity::OnMessage
-        void OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive) override;
+        void OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive) override;
 
         // \see Activity::OnDisconnect
-        void OnDisconnect(SPtr<Network::Client> Session) override;
+        void OnDisconnect(ConstSPtr<Network::Client> Session) override;
 
     private:
 

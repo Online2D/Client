@@ -32,7 +32,7 @@ namespace Foundation
 
     void Lobby::OnAttach()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 
         Browser->Register("doLobbyLogout", [this](CPtr<const UI::Value> Parameters)
         {
@@ -46,7 +46,7 @@ namespace Foundation
 
     void Lobby::OnDetach()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
         Browser->Unregister("doLobbyLogout");
     }
 
@@ -55,29 +55,23 @@ namespace Foundation
 
     void Lobby::OnResume()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
         Browser->Call("setMainScreen", "templates/lobby.html");
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Lobby::OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive)
+    void Lobby::OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive)
     {
-        do
-        {
-            switch (Archive.ReadInt<UInt>())
-            {
-            }
-        }
-        while (Archive.GetAvailable() > 0);
+        // TODO
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Lobby::OnDisconnect(SPtr<Network::Client> Session)
+    void Lobby::OnDisconnect(ConstSPtr<Network::Client> Session)
     {
-        GetApplication().GetKernel().Back();
+        GetApplication().Back();
     }
 }

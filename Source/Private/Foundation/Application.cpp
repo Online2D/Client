@@ -23,38 +23,87 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    Application::Application(Ref<Engine::Kernel> Kernel)
-        : Host(Kernel)
+    void Application::Connect(CStr Address, UInt32 Port)
     {
+        mSession = GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Application::OnStart()
+    void Application::Disconnect()
+    {
+        if (mSession)
+        {
+            mSession->Close(false);
+            mSession = nullptr;
+        }
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Application::Goto(SPtr<Activity> Foreground)
+    {
+        ConstSPtr<Activity> Current = mActivities.back();
+        if (Current)
+        {
+            Current->OnPause();
+        }
+
+        mActivities.emplace_back(Foreground);
+        Foreground->OnAttach();
+        Foreground->OnResume();
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Application::Back()
+    {
+        ConstSPtr<Activity> Current = mActivities.back();
+        if (Current)
+        {
+            Current->OnPause();
+            Current->OnDetach();
+            mActivities.pop_back();
+        }
+
+        ConstSPtr<Activity> Newest = mActivities.back();
+        if (Newest)
+        {
+            Newest->OnResume();
+        }
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    Bool Application::OnInitialize()
     {
         constexpr static CStr kFolder = "C:\\Program Files\\Argentum\\Data"; // @TESTING
 
         // Initialize resources
-        ConstSPtr<Content::Service> Resources = GetKernel().GetSubsystem<Content::Service>();
+        ConstSPtr<Content::Service> Resources = GetSubsystem<Content::Service>();
         Resources->AddLocator("Resources", NewPtr<Content::SystemLocator>(kFolder));
 
         // Initialize browser
-        ConstSPtr<UI::Service> Browser = GetKernel().GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
         Browser->Load("Resources://UI/index.html");
         Browser->Register("doExit", [this](CPtr<const UI::Value>) -> UI::Value {
-            GetKernel().Exit();
+            Exit();
             return UI::Value();
         });
 
         // Initialize initial activity (Gateway)
-        GetKernel().Goto(NewPtr<Gateway>(* this));
+        Goto(NewPtr<Gateway>(* this));
+        return true;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Application::OnStop()
+    void Application::OnDestroy()
     {
 
     }
@@ -64,29 +113,22 @@ namespace Foundation
 
     void Application::OnTick(Real64 Time)
     {
-        const Rectf Viewport(
-            Vector2f(0.0f, 0.0f), GetKernel().GetSubsystem<Platform::Service>()->GetWindow()->GetSize());
+        const Rectf Viewport(Vector2f(0.0f, 0.0f), GetSubsystem<Platform::Service>()->GetWindow()->GetSize());
 
-        ConstSPtr<Graphic::Service> Graphics = GetKernel().GetSubsystem<Graphic::Service>();
+        ConstSPtr<Graphic::Service> Graphics = GetSubsystem<Graphic::Service>();
         Graphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
-        GetKernel().GetSubsystem<UI::Service>()->Present();
+        {
+            // Tick (Activity)
+            ConstSPtr<Activity> Foreground = mActivities.back();
+            if (Foreground)
+            {
+                Foreground->OnTick(Time);
+            }
+
+            // Tick (UI)
+            GetSubsystem<UI::Service>()->Present();
+        }
         Graphics->Commit(Graphic::k_Default, false);
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Application::Connect(CStr Address, UInt32 Port)
-    {
-        mSession = GetKernel().GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
-    }
-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    void Application::Disconnect()
-    {
-        mSession->Close(false);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -94,7 +136,7 @@ namespace Foundation
 
     void Application::OnConnect(ConstSPtr<Network::Client> Session)
     {
-        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        ConstSPtr<Activity> Foreground = mActivities.back();
         if (Foreground)
         {
             Foreground->OnConnect(Session);
@@ -106,7 +148,7 @@ namespace Foundation
 
     void Application::OnDisconnect(ConstSPtr<Network::Client> Session)
     {
-        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        ConstSPtr<Activity> Foreground = mActivities.back();
         if (Foreground)
         {
             Foreground->OnDisconnect(Session);
@@ -118,11 +160,15 @@ namespace Foundation
 
     void Application::OnRead(ConstSPtr<Network::Client> Session, CPtr<UInt08> Bytes)
     {
-        ConstSPtr<Foundation::Activity> Foreground = GetKernel().GetForeground<Foundation::Activity>();
+        ConstSPtr<Activity> Foreground = mActivities.back();
         if (Foreground)
         {
             Reader Archive(Bytes);
-            Foreground->OnMessage(Session, Archive);
+            do
+            {
+                Foreground->OnMessage(Session, Archive);
+            }
+            while (Archive.GetAvailable() > 0);
         }
     }
 }
@@ -148,9 +194,9 @@ int main([[maybe_unused]] int Argc, [[maybe_unused]] Ptr<Char> Argv[])
     Properties.SetWindowMode(false, false);
 
     // Initialize 'Aurora Engine' and enter main loop
-    Engine::Kernel Kernel;
-    Kernel.Initialize(decltype(Kernel)::Mode::Client, Properties, NewPtr<Foundation::Application>(Kernel));
-    Kernel.Run();
+    SPtr<Foundation::Application> Application = NewPtr<Foundation::Application>();
+    Application->Initialize(System<Subsystem>::Mode::Client, Properties);
+    Application->Run();
 
     return 0;
 }

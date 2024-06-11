@@ -21,7 +21,7 @@
 namespace Foundation
 {
     // -=(Undocumented)=-
-    class Activity : public Engine::Activity
+    class Activity
     {
     public:
 
@@ -29,13 +29,31 @@ namespace Foundation
         Activity(Ref<Application> Application);
 
         // -=(Undocumented)=-
-        virtual void OnConnect(SPtr<Network::Client> Session);
+        virtual ~Activity() = default;
 
         // -=(Undocumented)=-
-        virtual void OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive);
+        virtual void OnAttach();
 
         // -=(Undocumented)=-
-        virtual void OnDisconnect(SPtr<Network::Client> Session);
+        virtual void OnDetach();
+
+        // -=(Undocumented)=-
+        virtual void OnPause();
+
+        // -=(Undocumented)=-
+        virtual void OnResume();
+
+        // -=(Undocumented)=-
+        virtual void OnTick(Real64 Time);
+
+        // -=(Undocumented)=-
+        virtual void OnConnect(ConstSPtr<Network::Client> Session);
+
+        // -=(Undocumented)=-
+        virtual void OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive);
+
+        // -=(Undocumented)=-
+        virtual void OnDisconnect(ConstSPtr<Network::Client> Session);
 
     protected:
 

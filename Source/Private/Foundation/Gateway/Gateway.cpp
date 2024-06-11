@@ -33,7 +33,7 @@ namespace Foundation
 
     void Gateway::OnAttach()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 
         Browser->Register("doAccountLogin", [this](CPtr<const UI::Value> Parameters)
         {
@@ -52,7 +52,7 @@ namespace Foundation
 
     void Gateway::OnDetach()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
         Browser->Unregister("doAccountLogin");
         Browser->Unregister("doAccountCreate");
     }
@@ -70,14 +70,14 @@ namespace Foundation
 
     void Gateway::OnResume()
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
         Browser->Call("setMainScreen", "templates/connect.html");
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnConnect(SPtr<Network::Client> Session)
+    void Gateway::OnConnect(ConstSPtr<Network::Client> Session)
     {
         switch (mState)
         {
@@ -89,39 +89,35 @@ namespace Foundation
         case State::Create:
             Session->Write(GatewayAccountRegister(mUsername, mPassword, mEmail));
             break;
-        case State::Waiting:
+        case State::Wait:
             break;
         }
 
-        mState = State::Waiting;
+        mState = State::Wait;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive)
+    void Gateway::OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive)
     {
-        do
+        switch (Archive.ReadInt<UInt>())
         {
-            switch (Archive.ReadInt<UInt>())
-            {
-            case GatewayAccountError::kID:
-                OnAccountError(Session, GatewayAccountError(Archive));
-                break;
-            case GatewayAccountData::kID:
-                OnAccountAuthorized(Session, GatewayAccountData(Archive));
-                break;
-            }
+        case GatewayAccountError::kID:
+            OnAccountError(Session, GatewayAccountError(Archive));
+            break;
+        case GatewayAccountData::kID:
+            OnAccountAuthorized(Session, GatewayAccountData(Archive));
+            break;
         }
-        while (Archive.GetAvailable() > 0);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnDisconnect(SPtr<Network::Client> Session)
+    void Gateway::OnDisconnect(ConstSPtr<Network::Client> Session)
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 
         switch (mState)
         {
@@ -176,9 +172,9 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnAccountError(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message)
+    void Gateway::OnAccountError(Ref<const GatewayAccountError> Message)
     {
-        ConstSPtr<UI::Service> Browser = GetSubsystem<UI::Service>();
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 
         switch (Message.Type)
         {
@@ -200,9 +196,9 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnAccountAuthorized(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountData> Message)
+    void Gateway::OnAccountAuthorized(Ref<const GatewayAccountData> Message)
     {
         // @TODO Send message information to Lobby Activity
-        GetApplication().GetKernel().Goto(NewPtr<Lobby>(GetApplication()));
+        GetApplication().Goto(NewPtr<Lobby>(GetApplication()));
     }
 }

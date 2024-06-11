@@ -13,7 +13,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "GatewayPackets.hpp"
-#include "Foundation/Activity.hpp"
+#include <Foundation/Activity.hpp>
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -40,7 +40,7 @@ namespace Foundation
             Idle,
             Authenticate,
             Create,
-            Waiting,
+            Wait,
         };
 
     public:
@@ -61,13 +61,13 @@ namespace Foundation
         void OnResume() override;
 
         // \see Activity::OnConnect
-        void OnConnect(SPtr<Network::Client> Session) override;
+        void OnConnect(ConstSPtr<Network::Client> Session) override;
 
         // \see Activity::OnMessage
-        void OnMessage(SPtr<Network::Client> Session, Ref<Reader> Archive) override;
+        void OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive) override;
 
         // \see Activity::OnDisconnect
-        void OnDisconnect(SPtr<Network::Client> Session) override;
+        void OnDisconnect(ConstSPtr<Network::Client> Session) override;
 
     private:
 
@@ -78,10 +78,10 @@ namespace Foundation
         void OnAccountCreate(CStr Username, CStr Password, CStr Email);
 
         // -=(Undocumented)=-
-        void OnAccountError(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountError> Message);
+        void OnAccountError(Ref<const GatewayAccountError> Message);
 
         // -=(Undocumented)=-
-        void OnAccountAuthorized(ConstSPtr<Network::Client> Client, Ref<const GatewayAccountData> Message);
+        void OnAccountAuthorized(Ref<const GatewayAccountData> Message);
 
     private:
 
