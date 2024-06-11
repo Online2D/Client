@@ -22,7 +22,7 @@
 namespace Foundation
 {
     // -=(Undocumented)=-
-    class Application final : public EnableSmartPointer<Application>, public Engine::Kernel, public Network::Protocol
+    class Application final : public Engine::Kernel, public Network::Protocol
     {
     public:
 

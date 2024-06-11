@@ -25,7 +25,7 @@ namespace Foundation
 
     void Application::Connect(CStr Address, UInt32 Port)
     {
-        mConnection = GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
+        mConnection = GetSubsystem<Network::Service>()->Connect(* this, Address, Port);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

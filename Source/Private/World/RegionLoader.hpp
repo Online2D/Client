@@ -39,7 +39,7 @@ namespace World
         }
 
         // \see AbstractLoader::Load
-        Bool Load(ConstSPtr<class Content::Service> Service, Ref<Chunk> Data, ConstSPtr<Region> Asset);
+        Bool Load(Ref<class Content::Service> Service, Ref<Chunk> Data, ConstSPtr<Region> Asset);
 
     private:
 

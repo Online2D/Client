@@ -84,10 +84,10 @@ namespace Foundation
         case State::Idle:
             break;
         case State::Authenticate:
-            Connection->Write(GatewayAccountLogin(mUsername, mPassword));
+            Connection->Write(GatewayAccountLogin(mUsername, mPassword), false);
             break;
         case State::Create:
-            Connection->Write(GatewayAccountRegister(mUsername, mPassword, mEmail));
+            Connection->Write(GatewayAccountRegister(mUsername, mPassword, mEmail), false);
             break;
         case State::Wait:
             break;
