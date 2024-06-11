@@ -204,7 +204,7 @@ int main([[maybe_unused]] int Argc, [[maybe_unused]] Ptr<Char> Argv[])
     Properties.SetWindowMode(false, false);
 
     // Initialize 'Aurora Engine' and enter main loop
-    SPtr<Foundation::Application> Application = NewPtr<Foundation::Application>();
+    UPtr<Foundation::Application> Application = NewUniquePtr<Foundation::Application>();
     Application->Initialize(System<Subsystem>::Mode::Client, Properties);
     Application->Run();
 
