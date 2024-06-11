@@ -47,13 +47,13 @@ namespace Foundation
         virtual void OnTick(Real64 Time);
 
         // -=(Undocumented)=-
-        virtual void OnConnect(ConstSPtr<Network::Client> Session);
+        virtual void OnConnect(ConstSPtr<Network::Client> Connection);
 
         // -=(Undocumented)=-
-        virtual void OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive);
+        virtual void OnMessage(ConstSPtr<Network::Client> Connection, Ref<Reader> Archive);
 
         // -=(Undocumented)=-
-        virtual void OnDisconnect(ConstSPtr<Network::Client> Session);
+        virtual void OnDisconnect(ConstSPtr<Network::Client> Connection);
 
     protected:
 

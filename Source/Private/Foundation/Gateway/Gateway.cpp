@@ -77,17 +77,17 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnConnect(ConstSPtr<Network::Client> Session)
+    void Gateway::OnConnect(ConstSPtr<Network::Client> Connection)
     {
         switch (mState)
         {
         case State::Idle:
             break;
         case State::Authenticate:
-            Session->Write(GatewayAccountLogin(mUsername, mPassword));
+            Connection->Write(GatewayAccountLogin(mUsername, mPassword));
             break;
         case State::Create:
-            Session->Write(GatewayAccountRegister(mUsername, mPassword, mEmail));
+            Connection->Write(GatewayAccountRegister(mUsername, mPassword, mEmail));
             break;
         case State::Wait:
             break;
@@ -99,15 +99,15 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive)
+    void Gateway::OnMessage(ConstSPtr<Network::Client> Connection, Ref<Reader> Archive)
     {
         switch (Archive.ReadInt<UInt>())
         {
         case GatewayAccountError::kID:
-            OnAccountError(Session, GatewayAccountError(Archive));
+            OnAccountError(GatewayAccountError(Archive));
             break;
         case GatewayAccountData::kID:
-            OnAccountAuthorized(Session, GatewayAccountData(Archive));
+            OnAccountAuthorized(GatewayAccountData(Archive));
             break;
         }
     }
@@ -115,7 +115,7 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Gateway::OnDisconnect(ConstSPtr<Network::Client> Session)
+    void Gateway::OnDisconnect(ConstSPtr<Network::Client> Connection)
     {
         ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 

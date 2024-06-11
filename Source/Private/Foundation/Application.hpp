@@ -13,6 +13,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include <Engine/Kernel.hpp>
+#include "World/Universe.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
@@ -49,13 +50,13 @@ namespace Foundation
         void OnTick(Real64 Time) override;
 
         // \see Protocol::OnConnect
-        void OnConnect(ConstSPtr<Network::Client> Session) override;
+        void OnConnect(ConstSPtr<Network::Client> Connection) override;
 
         // \see Protocol::OnDisconnect
-        void OnDisconnect(ConstSPtr<Network::Client> Session) override;
+        void OnDisconnect(ConstSPtr<Network::Client> Connection) override;
 
         // \see Protocol::OnRead
-        void OnRead(ConstSPtr<Network::Client> Session, CPtr<UInt08> Bytes) override;
+        void OnRead(ConstSPtr<Network::Client> Connection, CPtr<UInt08> Bytes) override;
 
     private:
 
@@ -67,6 +68,7 @@ namespace Foundation
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        SPtr<Network::Client>        mSession;
+        UPtr<World::Universe>        mUniverse;
+        SPtr<Network::Client>        mConnection;
     };
 }

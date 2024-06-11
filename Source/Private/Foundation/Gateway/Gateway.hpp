@@ -61,13 +61,13 @@ namespace Foundation
         void OnResume() override;
 
         // \see Activity::OnConnect
-        void OnConnect(ConstSPtr<Network::Client> Session) override;
+        void OnConnect(ConstSPtr<Network::Client> Connection) override;
 
         // \see Activity::OnMessage
-        void OnMessage(ConstSPtr<Network::Client> Session, Ref<Reader> Archive) override;
+        void OnMessage(ConstSPtr<Network::Client> Connection, Ref<Reader> Archive) override;
 
         // \see Activity::OnDisconnect
-        void OnDisconnect(ConstSPtr<Network::Client> Session) override;
+        void OnDisconnect(ConstSPtr<Network::Client> Connection) override;
 
     private:
 

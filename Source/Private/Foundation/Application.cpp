@@ -25,7 +25,7 @@ namespace Foundation
 
     void Application::Connect(CStr Address, UInt32 Port)
     {
-        mSession = GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
+        mConnection = GetSubsystem<Network::Service>()->Connect(shared_from_this(), Address, Port);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -33,10 +33,10 @@ namespace Foundation
 
     void Application::Disconnect()
     {
-        if (mSession)
+        if (mConnection)
         {
-            mSession->Close(false);
-            mSession = nullptr;
+            mConnection->Close(false);
+            mConnection = nullptr;
         }
     }
 
@@ -45,7 +45,7 @@ namespace Foundation
 
     void Application::Goto(SPtr<Activity> Foreground)
     {
-        ConstSPtr<Activity> Current = mActivities.back();
+        ConstSPtr<Activity> Current = mActivities.empty() ? nullptr : mActivities.back();
         if (Current)
         {
             Current->OnPause();
@@ -61,7 +61,7 @@ namespace Foundation
 
     void Application::Back()
     {
-        ConstSPtr<Activity> Current = mActivities.back();
+        ConstSPtr<Activity> Current = mActivities.empty() ? nullptr : mActivities.back();
         if (Current)
         {
             Current->OnPause();
@@ -69,7 +69,7 @@ namespace Foundation
             mActivities.pop_back();
         }
 
-        ConstSPtr<Activity> Newest = mActivities.back();
+        ConstSPtr<Activity> Newest = mActivities.empty() ? nullptr : mActivities.back();
         if (Newest)
         {
             Newest->OnResume();
@@ -95,6 +95,13 @@ namespace Foundation
             return UI::Value();
         });
 
+        // Initialize universe
+        ConstSPtr<Platform::Window> Display = GetSubsystem<Platform::Service>()->GetWindow();
+
+        mUniverse = NewUniquePtr<World::Universe>();
+        mUniverse->Initialize(* this);
+        mUniverse->GetDirector().SetViewport(Display->GetSize());
+
         // Initialize initial activity (Gateway)
         Goto(NewPtr<Gateway>(* this));
         return true;
@@ -118,14 +125,17 @@ namespace Foundation
         ConstSPtr<Graphic::Service> Graphics = GetSubsystem<Graphic::Service>();
         Graphics->Prepare(Graphic::k_Default, Viewport, Graphic::Clear::All, 0x00000000, 1.0f, 0);
         {
-            // Tick (Activity)
-            ConstSPtr<Activity> Foreground = mActivities.back();
+            // Draw Universe (In-Game)
+            mUniverse->Tick(Time); // TODO: Only draw when it is visible
+
+            // Tick Activity
+            ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
             if (Foreground)
             {
                 Foreground->OnTick(Time);
             }
 
-            // Tick (UI)
+            // Draw Browser (UI)
             GetSubsystem<UI::Service>()->Present();
         }
         Graphics->Commit(Graphic::k_Default, false);
@@ -134,39 +144,39 @@ namespace Foundation
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Application::OnConnect(ConstSPtr<Network::Client> Session)
+    void Application::OnConnect(ConstSPtr<Network::Client> Connection)
     {
-        ConstSPtr<Activity> Foreground = mActivities.back();
+        ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
         if (Foreground)
         {
-            Foreground->OnConnect(Session);
+            Foreground->OnConnect(Connection);
         }
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Application::OnDisconnect(ConstSPtr<Network::Client> Session)
+    void Application::OnDisconnect(ConstSPtr<Network::Client> Connection)
     {
-        ConstSPtr<Activity> Foreground = mActivities.back();
+        ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
         if (Foreground)
         {
-            Foreground->OnDisconnect(Session);
+            Foreground->OnDisconnect(Connection);
         }
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Application::OnRead(ConstSPtr<Network::Client> Session, CPtr<UInt08> Bytes)
+    void Application::OnRead(ConstSPtr<Network::Client> Connection, CPtr<UInt08> Bytes)
     {
-        ConstSPtr<Activity> Foreground = mActivities.back();
+        ConstSPtr<Activity> Foreground = mActivities.empty() ? nullptr : mActivities.back();
         if (Foreground)
         {
             Reader Archive(Bytes);
             do
             {
-                Foreground->OnMessage(Session, Archive);
+                Foreground->OnMessage(Connection, Archive);
             }
             while (Archive.GetAvailable() > 0);
         }
