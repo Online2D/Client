@@ -23,7 +23,8 @@ namespace World
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     Universe::Universe()
-        : mEntities { mAnimator }
+        : mActive   { false },
+          mEntities { mAnimator }
     {
     }
 
@@ -54,7 +55,11 @@ namespace World
         mTime = Time;
 
         OnUpdate(Delta);
-        OnRender(Delta);
+
+        if (mActive)
+        {
+            OnRender(Delta);
+        }
 
         // @TODO: Prune World.
     }

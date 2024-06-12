@@ -42,6 +42,18 @@ namespace World
         void Tick(Real64 Time);
 
         // -=(Undocumented)=-
+        void SetActive(Bool Active)
+        {
+            mActive = Active;
+        }
+
+        // -=(Undocumented)=-
+        Bool IsActive() const
+        {
+            return mActive;
+        }
+
+        // -=(Undocumented)=-
         Ref<Animator> GetAnimator()
         {
             return mAnimator;
@@ -107,6 +119,7 @@ namespace World
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+        Bool                    mActive;
         Real64                  mTime;
         Animator                mAnimator;
         Director                mDirector;
