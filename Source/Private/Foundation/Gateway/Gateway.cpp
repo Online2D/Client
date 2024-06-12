@@ -122,10 +122,10 @@ namespace Foundation
         switch (mState)
         {
         case State::Authenticate:
-            Browser->Call("showAccountLoginError", "error_connection");
+            Browser->Call("showAccountLoginError", "global.error_connection");
             break;
         case State::Create:
-            Browser->Call("showAccountCreateError", "error_connection");
+            Browser->Call("showAccountCreateError", "global.error_connection");
             break;
         default:
             break;
@@ -179,16 +179,16 @@ namespace Foundation
         switch (Message.Type)
         {
         case GatewayAccountError::ID::Unknown:
-            Browser->Call("showAccountLoginError", "error_account_unknown");
+            Browser->Call("showAccountLoginError", "connect.error_account_unknown");
             break;
         case GatewayAccountError::ID::Mismatch:
-            Browser->Call("showAccountLoginError", "error_account_mismatch");
+            Browser->Call("showAccountLoginError", "connect.error_account_mismatch");
             break;
         case GatewayAccountError::ID::Exist:
-            Browser->Call("showAccountCreateError", "error_account_exist");
+            Browser->Call("showAccountCreateError", "create_account.error_account_exist");
             break;
         case GatewayAccountError::ID::Online:
-            Browser->Call("showAccountLoginError", "error_account_online");
+            Browser->Call("showAccountLoginError", "connect.error_account_online");
             break;
         }
     }
