@@ -34,6 +34,16 @@ namespace Foundation
     {
         ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
 
+        Browser->Register("doCharacterEnter", [this](CPtr<const UI::Value> Parameters)
+        {
+            OnCharacterEnter(Parameters[0]);
+            return UI::Value();
+        });
+        Browser->Register("doCharacterDelete", [this](CPtr<const UI::Value> Parameters)
+        {
+            OnCharacterDelete(Parameters[0]);
+            return UI::Value();
+        });
         Browser->Register("doLobbyLogout", [this](CPtr<const UI::Value> Parameters)
         {
             GetApplication().Disconnect();
@@ -47,7 +57,17 @@ namespace Foundation
     void Lobby::OnDetach()
     {
         ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
+        Browser->Unregister("doCharacterEnter");
+        Browser->Unregister("doCharacterDelete");
         Browser->Unregister("doLobbyLogout");
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Lobby::OnPause()
+    {
+        mState = State::Idle;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -73,5 +93,35 @@ namespace Foundation
     void Lobby::OnDisconnect(ConstSPtr<Network::Client> Session)
     {
         GetApplication().Back();
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Lobby::OnCharacterEnter(UInt Character)
+    {
+        if (mState != State::Idle)
+        {
+            return;
+        }
+
+        mState = State::Enter;
+
+        GetApplication().Send(LobbyCharacterEnter(Character));
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void Lobby::OnCharacterDelete(UInt Character)
+    {
+        if (mState != State::Idle)
+        {
+            return;
+        }
+
+        mState = State::Delete;
+
+        GetApplication().Send(LobbyCharacterDelete(Character));
     }
 }

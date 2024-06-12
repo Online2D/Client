@@ -30,6 +30,8 @@ namespace Foundation
         enum class State
         {
             Idle,
+            Enter,
+            Delete,
         };
 
     public:
@@ -43,6 +45,9 @@ namespace Foundation
         // \see Activity::OnDetach
         void OnDetach() override;
 
+        // \see Activity::OnPause
+        void OnPause() override;
+
         // \see Activity::OnResume
         void OnResume() override;
 
@@ -51,6 +56,14 @@ namespace Foundation
 
         // \see Activity::OnDisconnect
         void OnDisconnect(ConstSPtr<Network::Client> Session) override;
+
+    private:
+
+        // -=(Undocumented)=-
+        void OnCharacterEnter(UInt Character);
+
+        // -=(Undocumented)=-
+        void OnCharacterDelete(UInt Character);
 
     private:
 

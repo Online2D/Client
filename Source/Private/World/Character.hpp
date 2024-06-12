@@ -22,6 +22,7 @@
 namespace World
 {
     // -=(Undocumented)=-
+    // @TODO: Attachment(s), Body, Animation
     class Character : public Entity
     {
     public:
@@ -29,6 +30,23 @@ namespace World
         // -=(Undocumented)=-
         Character(UInt32 ID, Ref<const Vector2f> Position);
 
-        // @TODO: Attachment(s), Body, Animation
+        // -=(Undocumented)=-
+        void SetName(CStr Name)
+        {
+            mName = Name;
+        }
+
+        // -=(Undocumented)=-
+        CStr GetName() const
+        {
+            return mName;
+        }
+
+    private:
+
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        SStr mName;
     };
 }

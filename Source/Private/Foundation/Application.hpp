@@ -36,6 +36,13 @@ namespace Foundation
         void Connect(CStr Address, UInt32 Port);
 
         // -=(Undocumented)=-
+        template<typename Message>
+        void Send(Message && Packet, Bool Unreliable = false)
+        {
+            mConnection->Write(Packet, Unreliable);
+        }
+
+        // -=(Undocumented)=-
         void Disconnect();
 
     private:
