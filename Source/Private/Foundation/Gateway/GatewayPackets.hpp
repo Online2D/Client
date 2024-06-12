@@ -166,15 +166,19 @@ namespace Foundation
         {
             UInt ID;
             SStr Name;
+            UInt Level;
+            SStr Class;
             SStr Location;
 
             // -=(Undocumented)=-
             Entity() = default;
 
             // -=(Undocumented)=-
-            Entity(UInt ID, CStr Name, CStr Location)
+            Entity(UInt ID, CStr Name, UInt Level, CStr Class, CStr Location)
                 : ID       { ID },
                   Name     { Name },
+                  Level    { Level },
+                  Class    { Class },
                   Location { Location }
             {
             }
@@ -184,8 +188,10 @@ namespace Foundation
             {
                 const UInt ID       = Archive.ReadInt<UInt>();
                 const CStr Name     = Archive.ReadString8();
+                const UInt Level    = Archive.ReadInt<UInt>();
+                const CStr Class    = Archive.ReadString8();
                 const CStr Location = Archive.ReadString8();
-                return Entity(ID, Name, Location);
+                return Entity(ID, Name, Level, Class, Location);
             }
 
             // -=(Undocumented)=-
@@ -193,6 +199,8 @@ namespace Foundation
             {
                 Archive.WriteInt(Entry.ID);
                 Archive.WriteString8(Entry.Name);
+                Archive.WriteInt(Entry.Level);
+                Archive.WriteString8(Entry.Class);
                 Archive.WriteString8(Entry.Location);
             }
         };

@@ -198,7 +198,20 @@ namespace Foundation
 
     void Gateway::OnAccountAuthorized(Ref<const GatewayAccountData> Message)
     {
-        // @TODO Send message information to Lobby Activity
+        // Switch to the next activity (Lobby)
         GetApplication().Goto(NewPtr<Lobby>(GetApplication()));
+
+        // Display the character(s) information
+        ConstSPtr<UI::Service> Browser = GetApplication().GetSubsystem<UI::Service>();
+
+        for (Ref<const GatewayAccountData::Entity> Entity : Message.Entities)
+        {
+            Browser->Call("setCharacterInLobby",
+                Entity.ID,
+                Entity.Name,
+                Entity.Level,
+                Entity.Class,
+                Entity.Location);
+        }
     }
 }
